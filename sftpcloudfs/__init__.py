@@ -6,6 +6,7 @@ Main function to setup the daemon process.
 import os
 import logging
 from logging.handlers import SysLogHandler
+from ConfigParser import RawConfigParser
 from optparse import OptionParser
 import daemon
 from daemon.pidlockfile import PIDLockFile
@@ -15,34 +16,52 @@ from sftpcloudfs.server import CloudFilesSFTPServer
 
 version = "0.1"
 project_url = "https://github.com/memset/blah"
+config_file = "/etc/sftpcloudfs.conf"
 
 class Main(object):
     def __init__(self):
         """Parse configuration and CLI options."""
+
+        config = RawConfigParser({'auth-url': None,
+                                  'host-key-file': None,
+                                  'bind-address': "127.0.0.1",
+                                  'port': 8022,
+                                  'log-file': None,
+                                  'syslog': 'no',
+                                  'verbose': 'no',
+                                  'pid-file': None,
+                                  'uid': None,
+                                  'gid': None,
+                                  })
+
+        config.read(config_file)
+        if not config.has_section('sftpcloudfs'):
+            config.add_section('sftpcloudfs')
+
         parser = OptionParser(version="%prog " + version,
                               description="This is a SFTP interface to Rackspace " + \
                                     "Cloud Files and Open Stack Object Storage (Swift).",
                               epilog="Contact and support at: %s" % project_url)
 
         parser.add_option("-a", "--auth-url", dest="authurl",
-                          default=None,
+                          default=config.get('sftpcloudfs', 'auth-url'),
                           help="Authentication URL.")
 
         parser.add_option("-k", "--host-key-file", dest="host_key",
-                          default=None,
+                          default=config.get('sftpcloudfs', 'host-key-file'),
                           help="Host RSA key used by the server.")
 
         parser.add_option("-b", "--bind-address", dest="bind_address",
-                          default="127.0.0.1",
+                          default=config.get('sftpcloudfs', 'bind-address'),
                           help="Address to bind (default: 127.0.0.1).")
 
         parser.add_option("-p", "--port", dest="port",
                           type="int",
-                          default=8022,
+                          default=config.get('sftpcloudfs', 'port'),
                           help="Port to bind (default: 8022).")
 
         parser.add_option("-l", "--log-file", dest="log_file",
-                          default=None,
+                          default=config.get('sftpcloudfs', 'log-file'),
                           help="Log into provided file.")
 
         parser.add_option("-f", "--foreground", dest="foreground",
@@ -52,30 +71,30 @@ class Main(object):
 
         parser.add_option("--syslog", dest="syslog",
                           action="store_true",
-                          default=False,
+                          default=config.get('sftpcloudfs', 'syslog'),
                           help="Enable logging to system logger (daemon facility).")
 
         parser.add_option("-v", "--verbose", dest="verbose",
                           action="store_true",
-                          default=False,
+                          default=config.get('sftpcloudfs', 'verbose'),
                           help="Show detailed information on logging.")
 
         parser.add_option('--pid-file',
                           type="str",
                           dest="pid_file",
-                          default=None,
+                          default=config.get('sftpcloudfs', 'pid-file'),
                           help="Pid file location when in daemon mode.")
 
         parser.add_option('--uid',
                           type="int",
                           dest="uid",
-                          default=None,
+                          default=config.get('sftpcloudfs', 'uid'),
                           help="UID to drop the privilige to when in daemon mode.")
 
         parser.add_option('--gid',
                           type="int",
                           dest="gid",
-                          default=None,
+                          default=config.get('sftpcloudfs', 'gid'),
                           help="GID to drop the privilige to when in daemon mode.")
 
         (options, args) = parser.parse_args()
@@ -123,6 +142,7 @@ class Main(object):
 
         if self.options.verbose:
             self.log.setLevel(logging.DEBUG)
+            self.log.debug(self.options)
         else:
             self.log.setLevel(logging.INFO)
 
