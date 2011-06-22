@@ -8,7 +8,7 @@ import logging
 import os
 import stat as statinfo
 import time
-from SocketServer import StreamRequestHandler, TCPServer
+from SocketServer import StreamRequestHandler, ThreadingTCPServer
 import threading
 
 import paramiko
@@ -19,7 +19,7 @@ from functools import wraps
 
 from posixpath import basename #FIXME put in cloudfilesfs?
 
-DEFAULT_HOST_KEY = paramiko.RSAKey(filename='rsa_key')
+version = "0.1"
 
 def return_sftp_errors(func):
     """
@@ -30,9 +30,9 @@ def return_sftp_errors(func):
     @wraps(func)
     def wrapper(*args,**kwargs):
         name = getattr(func, "func_name", "unknown")
-        try:            
+        try:
             logging.debug("%s(%r,%r): enter" % (name, args, kwargs))
-            rc = func(*args,**kwargs)            
+            rc = func(*args,**kwargs)
         except EnvironmentError, e:
             logging.debug("%s: caught error: %s" % (name, e))
             rc = paramiko.SFTPServer.convert_errno(e.errno)
@@ -48,7 +48,9 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
 
     def __init__(self, server, fs, *args, **kwargs):
         self.fs = fs
-        logging.debug("%s: start filesystem interface" % self.__class__.__name__)
+        self.fs.flush()
+        self.log = paramiko.util.get_logger("paramiko.transport")
+        self.log.debug("%s: start filesystem interface" % self.__class__.__name__)
         super(SFTPServerInterface,self).__init__(server, *args, **kwargs)
 
     @return_sftp_errors
@@ -59,7 +61,7 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
     def list_folder(self, path):
         return [ paramiko.SFTPAttributes.from_stat(stat, leaf)
                  for leaf, stat in self.fs.listdir_with_stat(path) ]
- 
+
     @return_sftp_errors
     def stat(self, path):
         stat = self.fs.stat(path)
@@ -110,9 +112,10 @@ class SFTPHandle(paramiko.SFTPHandle):
 
     def __init__(self, owner, path, flags):
         super(SFTPHandle, self).__init__(flags)
+        self.log = paramiko.util.get_logger("paramiko.transport")
         self.owner = owner
         self.path = path
-        logging.debug("SFTPHandle(path=%r, flags=%r)" % (path, flags))
+        self.log.debug("SFTPHandle(path=%r, flags=%r)" % (path, flags))
         open_mode = flags & (os.O_RDONLY | os.O_WRONLY | os.O_RDWR)
         if open_mode == os.O_RDONLY:
             mode = "r"
@@ -121,7 +124,7 @@ class SFTPHandle(paramiko.SFTPHandle):
         elif open_mode == os.O_RDWR:
             mode = "rw"
         else:
-            logging.error("Bad open mode %r" % flags)
+            self.log.error("Bad open mode %r" % flags)
             return parmiko.SFTP_OP_UNSUPPORTED
         if flags & os.O_APPEND:
             mode += "+"
@@ -173,30 +176,31 @@ class CloudFilesSFTPRequestHandler(StreamRequestHandler):
     auth_timeout = 60
 
     def handle(self):
-        logging.debug("%s: start transport" % self.__class__.__name__)
+        self.log = paramiko.util.get_logger("paramiko.transport")
+        self.log.debug("%s: start transport" % self.__class__.__name__)
         t = paramiko.Transport(self.request)
         t.add_server_key(self.server.host_key)
         t.set_subsystem_handler("sftp", paramiko.SFTPServer, SFTPServerInterface, self.server.fs)
-        # Note that this actually spawns a new thread to handle the requests.
-        # (Actually, paramiko.Transport is a subclass of Thread)
         t.start_server(server=self.server)
         chan = t.accept(self.auth_timeout)
         if chan is None:
-            raise Exception("FIXME session channel not opened (authentication failure?)")
+            self.log.warning("Channel is None, closing")
+            t.close()
+            return
         t.join()
 
-
-class CloudFilesSFTPServer(TCPServer, paramiko.ServerInterface):
+class CloudFilesSFTPServer(ThreadingTCPServer, paramiko.ServerInterface):
     """
     Expose a CloudFilesFS object over SFTP
     """
     allow_reuse_address = True
 
     def __init__(self, address, host_key=None, authurl=None):
-        logging.debug("%s: start server" % self.__class__.__name__)
+        self.log = paramiko.util.get_logger("paramiko.transport")
+        self.log.debug("%s: start server" % self.__class__.__name__)
         self.fs = CloudFilesFS(None, None, authurl=authurl) # unauthorized
-        self.host_key = host_key or DEFAULT_HOST_KEY
-        TCPServer.__init__(self, address, CloudFilesSFTPRequestHandler)
+        self.host_key = host_key
+        ThreadingTCPServer.__init__(self, address, CloudFilesSFTPRequestHandler)
 
     def close_request(self, request):
         # do nothing paramiko.Transport deals with it
@@ -205,6 +209,10 @@ class CloudFilesSFTPServer(TCPServer, paramiko.ServerInterface):
     def check_channel_request(self, kind, chanid):
         if kind == 'session':
             return paramiko.OPEN_SUCCEEDED
+        self.log.warning("Channel request denied, kind=%s" % kind)
+        # all the check_channel_*_request return False by default but
+        # sftp subsystem because of the set_subsystem_handler call in
+        # the CloudFilesSFTPRequestHandler
         return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 
     def check_auth_none(self, username):
@@ -217,12 +225,18 @@ class CloudFilesSFTPServer(TCPServer, paramiko.ServerInterface):
 
     def check_auth_password(self, username, password):
         """Check whether the given password is valid for authentication."""
+        self.log.info("Auth request (type=password), username=%s" % username)
+
+        if not password:
+            self.log.error("Failed to authenticate: no password provided")
+            return paramiko.AUTH_FAILED
+
         try:
             self.fs.authenticate(username, password)
         except EnvironmentError, e:
-            logging.error("Failed to authenticate: %s" % e)
+            self.log.error("Failed to authenticate: %s" % e)
             return paramiko.AUTH_FAILED
-        logging.debug("%s: authenticated" % self.__class__.__name__)
+        self.log.debug("%s: authenticated" % self.__class__.__name__)
         return paramiko.AUTH_SUCCESSFUL
 
     def get_allowed_auths(self,username):
@@ -231,16 +245,4 @@ class CloudFilesSFTPServer(TCPServer, paramiko.ServerInterface):
         The available modes are  "node", "password" and "publickey".
         """
         return "password"
-
-if __name__ == "__main__":
-    paramiko.util.log_to_file('sftpd.log')
-    logging.basicConfig(level=logging.DEBUG)
-    #authurl = "https://external.cloudstorage.dev.bofhs.net/v1.0"
-    #authurl = "https://lon.auth.api.rackspacecloud.com/v1.0"
-    authurl = "https://cstauth.miniserver.com/v1.0"
-    server = CloudFilesSFTPServer(("localhost",8022), authurl=authurl)
-    try:
-        server.serve_forever()
-    except (SystemExit,KeyboardInterrupt):
-        server.server_close()
 
