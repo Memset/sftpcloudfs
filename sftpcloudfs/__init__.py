@@ -77,63 +77,63 @@ class Main(object):
 
         parser.add_option("-a", "--auth-url", dest="authurl",
                           default=config.get('sftpcloudfs', 'auth-url'),
-                          help="Authentication URL.")
+                          help="Authentication URL")
 
         parser.add_option("-k", "--host-key-file", dest="host_key",
                           default=config.get('sftpcloudfs', 'host-key-file'),
-                          help="Host RSA key used by the server.")
+                          help="Host RSA key used by the server")
 
         parser.add_option("-b", "--bind-address", dest="bind_address",
                           default=config.get('sftpcloudfs', 'bind-address'),
-                          help="Address to bind (default: 127.0.0.1).")
+                          help="Address to bind (default: 127.0.0.1)")
 
         parser.add_option("-p", "--port", dest="port",
                           type="int",
                           default=config.get('sftpcloudfs', 'port'),
-                          help="Port to bind (default: 8022).")
+                          help="Port to bind (default: 8022)")
 
         parser.add_option("-l", "--log-file", dest="log_file",
                           default=config.get('sftpcloudfs', 'log-file'),
-                          help="Log into provided file.")
+                          help="Log into provided file")
 
         parser.add_option("-f", "--foreground", dest="foreground",
                           action="store_true",
                           default=False,
-                          help="Run in the foreground (don't detach from terminal).")
+                          help="Run in the foreground (don't detach from terminal)")
 
         parser.add_option("--syslog", dest="syslog",
                           action="store_true",
                           default=config.get('sftpcloudfs', 'syslog'),
-                          help="Enable logging to system logger (daemon facility).")
+                          help="Enable logging to system logger (daemon facility)")
 
         parser.add_option("-v", "--verbose", dest="verbose",
                           action="store_true",
                           default=config.get('sftpcloudfs', 'verbose'),
-                          help="Show detailed information on logging.")
+                          help="Show detailed information on logging")
 
         parser.add_option('--pid-file',
                           type="str",
                           dest="pid_file",
                           default=config.get('sftpcloudfs', 'pid-file'),
-                          help="Pid file location when in daemon mode.")
+                          help="Pid file location when in daemon mode")
 
         parser.add_option('--uid',
                           type="int",
                           dest="uid",
                           default=config.get('sftpcloudfs', 'uid'),
-                          help="UID to drop the privileges to when in daemon mode.")
+                          help="UID to drop the privileges to when in daemon mode")
 
         parser.add_option('--gid',
                           type="int",
                           dest="gid",
                           default=config.get('sftpcloudfs', 'gid'),
-                          help="GID to drop the privileges to when in daemon mode.")
+                          help="GID to drop the privileges to when in daemon mode")
 
         parser.add_option('--config',
                           type="str",
                           dest="config",
                           default=config_file,
-                          help="Use an alternative configuration file.")
+                          help="Use an alternative configuration file")
 
 
         (options, args) = parser.parse_args()
