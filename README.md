@@ -1,8 +1,8 @@
 sftpd cloudfs
 =============
 
-This is a SFTP ([Secure File Transfer Protocol](http://en.wikipedia.org/wiki/SSH_File_Transfer_Protocol))
-interface to Rackspace Cloud Files and OpenStack Object Storage.
+This is a SFTP (Secure File Transfer Protocol) interface to Rackspace
+Cloud Files and OpenStack Object Storage.
 
 
 Requirements
@@ -49,6 +49,10 @@ License
 
 This is free software under the terms of MIT license (check COPYING file
 included in this package).
+
+The server is loosely based on the BSD licensed sftpd server code from:
+
+    http://code.google.com/p/pyfilesystem/
 
 
 Contact and support
