@@ -18,6 +18,14 @@ These are the minimum recommended versions based in our testing
 environment.
 
 
+Install
+-------
+
+Run following command:
+
+    python setup.py install
+
+
 Usage
 -----
 
