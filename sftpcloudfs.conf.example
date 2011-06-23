@@ -1,0 +1,37 @@
+# sftpcloudfs example configuration file
+#
+
+[sftpcloudfs]
+
+# Authentication URL (eg RackSpace Cloud Files, OpenStack)
+# auth-url = (empty)
+
+# Host RSA key used by the server.
+# host-key-file = (empty)
+
+# Address to bind.
+# bind-address = 127.0.0.1
+
+# Port to bind.
+# port = 8022
+
+# Log file location.
+# log-file = (empty)
+
+# Enable logging to system logger (daemon facility).
+# syslog = no
+
+# Show detaiuled information on logging.
+# verbose = no
+
+# Pid file location when in daemon mode.
+# pid-file = (empty)
+
+# UID to drop privileges when in daemon mode.
+# uid = (empty)
+
+# GID to drop privileges when in daemon mode.
+# gid = (empty)
+
+# EOF
+
