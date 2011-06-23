@@ -86,7 +86,7 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
     def stat(self, path):
         stat = self.fs.stat(path)
         filename = basename(path)
-        return paramiko.SFTPAttributes.from_stat(stat, path)
+        return paramiko.SFTPAttributes.from_stat(stat, filename)
 
     def lstat(self, path):
         return self.stat(path)
