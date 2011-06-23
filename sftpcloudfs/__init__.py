@@ -11,6 +11,7 @@ from optparse import OptionParser
 import daemon
 from daemon.pidlockfile import PIDLockFile
 import tempfile
+from Crypto import Random
 import paramiko
 from sftpcloudfs.server import CloudFilesSFTPServer
 
@@ -175,9 +176,11 @@ class Main(object):
         if self.options.gid:
             dc.gid = self.options.gid
 
-        dc.files_preserve = [server.fileno(), ]
+        # FIXME: we don't know the fileno for Random, but it's < 16
+        dc.files_preserve = range(server.fileno(), 16)
 
         with dc:
+            Random.atfork()
             self.setup_log()
             try:
                 if os.getuid() == 0:
