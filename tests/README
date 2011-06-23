@@ -9,3 +9,9 @@ Set these environment variables before running the tests
 And if using Openstack
 
   export RCLOUD_AUTH_URL='https://url.of.auth.server/v1.0'
+
+Those tests were based on python-ftp-cloudfs tests, MIT licensed.
+Please check the original project at:
+
+https://github.com/chmouel/ftp-cloudfs
+

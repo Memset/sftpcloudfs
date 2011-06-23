@@ -1,9 +1,31 @@
 #!/usr/bin/python
 """
 Main function to setup the daemon process.
+
+Copyright (C) 2011 by Memset Ltd. http://www.memset.com/
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
 """
 
 import os
+import sys
 import logging
 from logging.handlers import SysLogHandler
 from ConfigParser import RawConfigParser
@@ -22,6 +44,15 @@ config_file = "/etc/sftpcloudfs.conf"
 class Main(object):
     def __init__(self):
         """Parse configuration and CLI options."""
+        global config_file
+
+        # look for an alternative configuration file
+        try:
+            alt_config_file = sys.argv.index('--config')
+            alt_config_file = sys.argv[alt_config_file+1]
+            config_file = alt_config_file
+        except (ValueError, IndexError):
+            pass
 
         config = RawConfigParser({'auth-url': None,
                                   'host-key-file': None,
@@ -97,6 +128,13 @@ class Main(object):
                           dest="gid",
                           default=config.get('sftpcloudfs', 'gid'),
                           help="GID to drop the privileges to when in daemon mode.")
+
+        parser.add_option('--config',
+                          type="str",
+                          dest="config",
+                          default=config_file,
+                          help="Use an alternative configuration file.")
+
 
         (options, args) = parser.parse_args()
 
