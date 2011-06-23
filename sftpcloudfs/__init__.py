@@ -135,7 +135,6 @@ class Main(object):
                           default=config_file,
                           help="Use an alternative configuration file")
 
-
         (options, args) = parser.parse_args()
 
         if not options.pid_file:
