@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
-from sftpcloudfs import version, project_url
+from sftpcloudfs.constants import version, project_url
 
 setup(name='sftpd-cloudfs',
       version=version,

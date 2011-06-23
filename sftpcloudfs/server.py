@@ -39,8 +39,7 @@ from StringIO import StringIO
 from functools import wraps
 
 from posixpath import basename #FIXME put in cloudfilesfs?
-
-version = "0.1"
+from sftpcloudfs.constants import version
 
 def return_sftp_errors(func):
     """
