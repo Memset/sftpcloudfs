@@ -188,7 +188,6 @@ class Main(object):
 
                 self.log.info("Listening on %s:%s" % (self.options.bind_address, self.options.port))
                 server.serve_forever()
-            # FIXME: KeyboardInterrupt is used here?
             except (SystemExit, KeyboardInterrupt):
                 self.log.info("Terminating...")
                 server.server_close()
