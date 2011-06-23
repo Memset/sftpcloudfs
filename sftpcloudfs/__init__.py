@@ -90,13 +90,13 @@ class Main(object):
                           type="int",
                           dest="uid",
                           default=config.get('sftpcloudfs', 'uid'),
-                          help="UID to drop the privilige to when in daemon mode.")
+                          help="UID to drop the privileges to when in daemon mode.")
 
         parser.add_option('--gid',
                           type="int",
                           dest="gid",
                           default=config.get('sftpcloudfs', 'gid'),
-                          help="GID to drop the privilige to when in daemon mode.")
+                          help="GID to drop the privileges to when in daemon mode.")
 
         (options, args) = parser.parse_args()
 
