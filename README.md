@@ -10,7 +10,7 @@ Requirements
 
 - python (2.6)
 - python-paramiko (1.7.6)
-- python-cloudfiles (1.7.9)
+- python-rackspace-cloudfiles (1.7.9)
 - python-daemon (1.5.5)
 - python-ftp-cloudfs (0.9)
 
