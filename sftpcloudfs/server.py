@@ -194,6 +194,7 @@ class CloudFilesSFTPServer(ThreadingTCPServer, paramiko.ServerInterface):
     Expose a CloudFilesFS object over SFTP
     """
     allow_reuse_address = True
+    daemon_threads = True
 
     def __init__(self, address, host_key=None, authurl=None):
         self.log = paramiko.util.get_logger("paramiko.transport")
