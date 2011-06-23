@@ -18,6 +18,32 @@ These are the minimum recommended versions based in our testing
 environment.
 
 
+Usage
+-----
+
+Once installed you can run the service with sftpcloudfs executable,
+that supports following options:
+
+    --version             show program's version number and exit
+    -h, --help            show this help message and exit
+    -a AUTHURL, --auth-url=AUTHURL
+                          Authentication URL
+    -k HOST_KEY, --host-key-file=HOST_KEY
+                          Host RSA key used by the server
+    -b BIND_ADDRESS, --bind-address=BIND_ADDRESS
+                          Address to bind (default: 127.0.0.1)
+    -p PORT, --port=PORT  Port to bind (default: 8022)
+    -l LOG_FILE, --log-file=LOG_FILE
+                          Log into provided file
+    -f, --foreground      Run in the foreground (don't detach from terminal)
+    --syslog              Enable logging to system logger (daemon facility)
+    -v, --verbose         Show detailed information on logging
+    --pid-file=PID_FILE   Pid file location when in daemon mode
+    --uid=UID             UID to drop the privileges to when in daemon mode
+    --gid=GID             GID to drop the privileges to when in daemon mode
+    --config=CONFIG       Use an alternative configuration file
+
+
 License
 -------
 
