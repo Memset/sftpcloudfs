@@ -25,6 +25,7 @@ THE SOFTWARE.
 """
 
 import os
+import signal
 import sys
 import logging
 from logging.handlers import SysLogHandler
@@ -194,7 +195,7 @@ class Main(object):
 
         dc = daemon.DaemonContext()
 
-        self.pidfile = PIDLockFile(self.options.pid_file, threaded=True)
+        self.pidfile = PIDLockFile(self.options.pid_file)
         dc.pidfile = self.pidfile
 
         if self.options.uid:
@@ -203,7 +204,7 @@ class Main(object):
         if self.options.gid:
             dc.gid = self.options.gid
 
-        # FIXME: we don't know the fileno for Random, but it's < 16
+        # FIXME: we don't know the fileno for Random open files, but they're  < 16
         dc.files_preserve = range(server.fileno(), 16)
 
         if self.options.foreground:
@@ -220,6 +221,8 @@ class Main(object):
                 server.serve_forever()
             except (SystemExit, KeyboardInterrupt):
                 self.log.info("Terminating...")
+                for pid in server.active_children:
+                    os.kill(pid, signal.SIGTERM)
                 server.server_close()
 
         self.pidfile.release()
