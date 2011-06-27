@@ -180,6 +180,11 @@ class Main(object):
                 handler.setFormatter(logging.Formatter('%(name)s[%(_threadid)s]: %(levelname)s: %(message)s'))
                 self.log.addHandler(handler)
 
+        if self.options.foreground:
+            handler = logging.StreamHandler()
+            handler.setFormatter(logging.Formatter('%(asctime)s: %(name)s[%(_threadid)s]: %(levelname)s: %(message)s'))
+            self.log.addHandler(handler)
+
         if self.options.verbose:
             self.log.setLevel(logging.DEBUG)
             self.log.debug(self.options)
@@ -209,6 +214,7 @@ class Main(object):
 
         if self.options.foreground:
             dc.detach_process = False
+            dc.stderr = sys.stderr
 
         with dc:
             Random.atfork()
@@ -221,11 +227,13 @@ class Main(object):
                 server.serve_forever()
             except (SystemExit, KeyboardInterrupt):
                 self.log.info("Terminating...")
-                for pid in server.active_children:
-                    os.kill(pid, signal.SIGTERM)
+                if server.active_children:
+                    for pid in server.active_children:
+                        os.kill(pid, signal.SIGTERM)
                 server.server_close()
 
-        self.pidfile.release()
+        if self.pidfile.i_am_locking():
+            self.pidfile.release()
 
         return 0
 
