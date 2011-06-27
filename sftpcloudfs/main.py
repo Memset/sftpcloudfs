@@ -192,17 +192,6 @@ class Main(object):
                                        host_key=self.host_key,
                                        authurl=self.options.authurl)
 
-        if self.options.foreground:
-            self.setup_log()
-            try:
-                self.log.info("Listening on %s:%s" % (self.options.bind_address, self.options.port))
-                server.serve_forever()
-            except (SystemExit, KeyboardInterrupt):
-                self.log.info("Terminating...")
-                server.server_close()
-
-            return 0
-
         dc = daemon.DaemonContext()
 
         self.pidfile = PIDLockFile(self.options.pid_file, threaded=True)
@@ -216,6 +205,9 @@ class Main(object):
 
         # FIXME: we don't know the fileno for Random, but it's < 16
         dc.files_preserve = range(server.fileno(), 16)
+
+        if self.options.foreground:
+            dc.detach_process = False
 
         with dc:
             Random.atfork()
