@@ -57,6 +57,7 @@ class Main(object):
                                   'host-key-file': None,
                                   'bind-address': "127.0.0.1",
                                   'port': 8022,
+                                  'max-children': 20,
                                   'log-file': None,
                                   'syslog': 'no',
                                   'verbose': 'no',
@@ -157,6 +158,7 @@ class Main(object):
         except (IOError, paramiko.SSHException), e:
             parser.error("host-key-file: %s" % e)
 
+        options.max_children = config.get('sftpcloudfs', 'max-children')
         self.options = options
 
     def setup_log(self):

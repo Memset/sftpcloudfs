@@ -15,6 +15,9 @@
 # Port to bind.
 # port = 8022
 
+# Maximum number of workers.
+# max-children = 20
+
 # Log file location.
 # log-file = (empty)
 
