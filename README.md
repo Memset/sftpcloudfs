@@ -61,6 +61,8 @@ that supports following options:
     --gid=GID             GID to drop the privileges to when in daemon mode
     --config=CONFIG       Use an alternative configuration file
 
+The default location for the configuration file is /etc/sftpcloudfs.conf.
+
 
 License
 -------
@@ -78,7 +80,7 @@ Contact and support
 
 The project website is at:
 
-  https://github.com/memset/blah
+  https://github.com/memset/sftpcloudfs
 
 There you can file bug reports, ask for help or contribute patches.
 
