@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 from sftpcloudfs.constants import version, project_url
 
-setup(name='sftpd-cloudfs',
+setup(name='sftp-cloudfs',
       version=version,
       description='SFTP interface to Rackspace Cloud Files and Open Stack Object Storage (Swift)',
       author='Nick Craig-Wood',

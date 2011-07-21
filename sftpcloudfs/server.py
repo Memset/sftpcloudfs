@@ -29,10 +29,10 @@ import logging
 import os
 import stat as statinfo
 import time
-from SocketServer import StreamRequestHandler, ThreadingTCPServer
-import threading
+from SocketServer import StreamRequestHandler, ForkingTCPServer
 
 import paramiko
+from Crypto import Random
 
 from ftpcloudfs.fs import CloudFilesFS
 from StringIO import StringIO
@@ -49,14 +49,15 @@ def return_sftp_errors(func):
     """
     @wraps(func)
     def wrapper(*args,**kwargs):
+        log = paramiko.util.get_logger("paramiko")
         name = getattr(func, "func_name", "unknown")
         try:
-            logging.debug("%s(%r,%r): enter" % (name, args, kwargs))
+            log.debug("%s(%r,%r): enter" % (name, args, kwargs))
             rc = func(*args,**kwargs)
         except EnvironmentError, e:
-            logging.debug("%s: caught error: %s" % (name, e))
+            log.debug("%s: caught error: %s" % (name, e))
             rc = paramiko.SFTPServer.convert_errno(e.errno)
-        logging.debug("%s: returns %r" % (name, rc))
+        log.debug("%s: returns %r" % (name, rc))
         return rc
     return wrapper
 
@@ -69,7 +70,7 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
     def __init__(self, server, fs, *args, **kwargs):
         self.fs = fs
         self.fs.flush()
-        self.log = paramiko.util.get_logger("paramiko.transport")
+        self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start filesystem interface" % self.__class__.__name__)
         super(SFTPServerInterface,self).__init__(server, *args, **kwargs)
 
@@ -132,7 +133,7 @@ class SFTPHandle(paramiko.SFTPHandle):
 
     def __init__(self, owner, path, flags):
         super(SFTPHandle, self).__init__(flags)
-        self.log = paramiko.util.get_logger("paramiko.transport")
+        self.log = paramiko.util.get_logger("paramiko")
         self.owner = owner
         self.path = path
         self.log.debug("SFTPHandle(path=%r, flags=%r)" % (path, flags))
@@ -190,42 +191,47 @@ class CloudFilesSFTPRequestHandler(StreamRequestHandler):
     sftp subsystem, and hands off to the transport's own request handling
     thread.  Note that paramiko.Transport uses a separate thread by default,
     so there is no need to use ThreadingMixin.
+
+    A TERM signal may be processed with a delay up to 10 seconds.
     """
 
     timeout = 60
     auth_timeout = 60
 
     def handle(self):
-        self.log = paramiko.util.get_logger("paramiko.transport")
+        Random.atfork()
+        paramiko.util.get_logger("paramiko.transport").setLevel(logging.CRITICAL)
+        self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start transport" % self.__class__.__name__)
         t = paramiko.Transport(self.request)
         t.add_server_key(self.server.host_key)
         t.set_subsystem_handler("sftp", paramiko.SFTPServer, SFTPServerInterface, self.server.fs)
-        t.start_server(server=self.server)
+        try:
+            t.start_server(server=self.server)
+        except paramiko.SSHException, e:
+            self.log.warning("Disconnecting: %s" % e)
+            t.close()
+            return
         chan = t.accept(self.auth_timeout)
         if chan is None:
             self.log.warning("Channel is None, closing")
             t.close()
             return
-        t.join()
+        while t.isAlive():
+            t.join(timeout=10)
 
-class CloudFilesSFTPServer(ThreadingTCPServer, paramiko.ServerInterface):
+class CloudFilesSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
     """
     Expose a CloudFilesFS object over SFTP
     """
     allow_reuse_address = True
-    daemon_threads = True
 
     def __init__(self, address, host_key=None, authurl=None):
-        self.log = paramiko.util.get_logger("paramiko.transport")
+        self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start server" % self.__class__.__name__)
         self.fs = CloudFilesFS(None, None, authurl=authurl) # unauthorized
         self.host_key = host_key
-        ThreadingTCPServer.__init__(self, address, CloudFilesSFTPRequestHandler)
-
-    def close_request(self, request):
-        # do nothing paramiko.Transport deals with it
-        pass
+        ForkingTCPServer.__init__(self, address, CloudFilesSFTPRequestHandler)
 
     def check_channel_request(self, kind, chanid):
         if kind == 'session':

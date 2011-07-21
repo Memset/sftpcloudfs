@@ -25,6 +25,7 @@ THE SOFTWARE.
 """
 
 import os
+import signal
 import sys
 import logging
 from logging.handlers import SysLogHandler
@@ -57,6 +58,7 @@ class Main(object):
                                   'host-key-file': None,
                                   'bind-address': "127.0.0.1",
                                   'port': 8022,
+                                  'max-children': 20,
                                   'log-file': None,
                                   'syslog': 'no',
                                   'verbose': 'no',
@@ -157,6 +159,7 @@ class Main(object):
         except (IOError, paramiko.SSHException), e:
             parser.error("host-key-file: %s" % e)
 
+        options.max_children = config.get('sftpcloudfs', 'max-children')
         self.options = options
 
     def setup_log(self):
@@ -177,6 +180,11 @@ class Main(object):
                 handler.setFormatter(logging.Formatter('%(name)s[%(_threadid)s]: %(levelname)s: %(message)s'))
                 self.log.addHandler(handler)
 
+        if self.options.foreground:
+            handler = logging.StreamHandler()
+            handler.setFormatter(logging.Formatter('%(asctime)s: %(name)s[%(_threadid)s]: %(levelname)s: %(message)s'))
+            self.log.addHandler(handler)
+
         if self.options.verbose:
             self.log.setLevel(logging.DEBUG)
             self.log.debug(self.options)
@@ -190,20 +198,9 @@ class Main(object):
                                        host_key=self.host_key,
                                        authurl=self.options.authurl)
 
-        if self.options.foreground:
-            self.setup_log()
-            try:
-                self.log.info("Listening on %s:%s" % (self.options.bind_address, self.options.port))
-                server.serve_forever()
-            except (SystemExit, KeyboardInterrupt):
-                self.log.info("Terminating...")
-                server.server_close()
-
-            return 0
-
         dc = daemon.DaemonContext()
 
-        self.pidfile = PIDLockFile(self.options.pid_file, threaded=True)
+        self.pidfile = PIDLockFile(self.options.pid_file)
         dc.pidfile = self.pidfile
 
         if self.options.uid:
@@ -212,8 +209,12 @@ class Main(object):
         if self.options.gid:
             dc.gid = self.options.gid
 
-        # FIXME: we don't know the fileno for Random, but it's < 16
+        # FIXME: we don't know the fileno for Random open files, but they're  < 16
         dc.files_preserve = range(server.fileno(), 16)
+
+        if self.options.foreground:
+            dc.detach_process = False
+            dc.stderr = sys.stderr
 
         with dc:
             Random.atfork()
@@ -226,9 +227,13 @@ class Main(object):
                 server.serve_forever()
             except (SystemExit, KeyboardInterrupt):
                 self.log.info("Terminating...")
+                if server.active_children:
+                    for pid in server.active_children:
+                        os.kill(pid, signal.SIGTERM)
                 server.server_close()
 
-        self.pidfile.release()
+        if self.pidfile.i_am_locking():
+            self.pidfile.release()
 
         return 0
 

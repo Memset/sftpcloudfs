@@ -2,11 +2,23 @@ sftpd cloudfs
 =============
 
 This is a SFTP (Secure File Transfer Protocol) interface to Rackspace
-Cloud Files and OpenStack Object Storage.
+Cloud Files and OpenStack Object Storage, providing a service that
+acts as a proxy between a SFTP client and a remote files/storage
+service.
+
+The username/password pair used to open the SFTP session is validated
+using the authentication service of the files/storage service to get
+an authentication token.
+
+The communication between the client and the SFTP daemon is encrypted
+all the time, and the SFTP service supports HTTPS communication with
+the remote files/storage service.
 
 
-Requirements
-------------
+Install
+-------
+
+Requirements:
 
 - python (2.6)
 - python-paramiko (1.7.6)
@@ -17,13 +29,11 @@ Requirements
 These are the minimum recommended versions based in our testing
 environment.
 
-
-Install
--------
-
-Run following command:
+To install the software, run following command:
 
     python setup.py install
+
+You may need to create a host key with ssh-keygen.
 
 
 Usage
@@ -51,6 +61,8 @@ that supports following options:
     --gid=GID             GID to drop the privileges to when in daemon mode
     --config=CONFIG       Use an alternative configuration file
 
+The default location for the configuration file is /etc/sftpcloudfs.conf.
+
 
 License
 -------
@@ -68,7 +80,7 @@ Contact and support
 
 The project website is at:
 
-  https://github.com/memset/blah
+  https://github.com/memset/sftpcloudfs
 
 There you can file bug reports, ask for help or contribute patches.
 
