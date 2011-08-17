@@ -21,10 +21,10 @@ Install
 Requirements:
 
 - python (2.6)
-- python-paramiko (1.7.6)
-- python-rackspace-cloudfiles (1.7.9)
+- paramiko (1.7.6)
+- python-cloudfiles (1.7.9)
 - python-daemon (1.5.5)
-- python-ftp-cloudfs (0.9)
+- ftp-cloudfs (0.9)
 
 These are the minimum recommended versions based in our testing
 environment.
