@@ -2,9 +2,16 @@
 from setuptools import setup, find_packages
 from sftpcloudfs.constants import version, project_url
 
+def readme():
+    try:
+        return open('README.md').read()
+    except:
+        return ""
+
 setup(name='sftp-cloudfs',
       version=version,
       description='SFTP interface to Rackspace Cloud Files and Open Stack Object Storage (Swift)',
+      long_description=readme(),
       author='Nick Craig-Wood',
       author_email='nick@memset.com',
       url=project_url,
@@ -14,7 +21,7 @@ setup(name='sftp-cloudfs',
       install_requires=['paramiko', 'python-cloudfiles', 'python-daemon',
                         'ftp-cloudfs>=0.9'],
       scripts=['bin/sftpcloudfs'],
-      packages = find_packages(exclude=['tests', 'debian']),
+      packages = find_packages(exclude=['tests']),
       tests_require = ["nose"],
       classifiers = [
         'Development Status :: 4 - Beta',
