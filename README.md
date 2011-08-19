@@ -33,6 +33,10 @@ To install the software, run following command:
 
     python setup.py install
 
+Or using pip:
+
+    pip install sftp-cloudfs
+
 You may need to create a host key with ssh-keygen.
 
 
