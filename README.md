@@ -37,6 +37,9 @@ Or using pip:
 
     pip install sftp-cloudfs
 
+Please use the latest pip version, old versions may have bugs. You
+can upgrade pip using pip: pip install --upgrade pip.
+
 You may need to create a host key with ssh-keygen.
 
 
