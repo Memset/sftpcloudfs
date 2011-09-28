@@ -54,7 +54,7 @@ class PIDFile(object):
     def __enter__(self):
         return self.acquire()
 
-    def __exit__(self):
+    def __exit__(self, *args, **kwargs):
         self.release()
 
     def acquire(self):
