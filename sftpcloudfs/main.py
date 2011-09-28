@@ -32,7 +32,6 @@ from logging.handlers import SysLogHandler
 from ConfigParser import RawConfigParser
 from optparse import OptionParser
 import daemon
-from daemon.pidlockfile import PIDLockFile
 import tempfile
 from Crypto import Random
 import paramiko
@@ -40,6 +39,50 @@ from sftpcloudfs.server import CloudFilesSFTPServer
 from sftpcloudfs.constants import version, project_url
 
 config_file = "/etc/sftpcloudfs.conf"
+
+class PIDFile(object):
+    """
+    PID file implementation using a context manager.
+
+    Entering the context acquires the lock, raising OSError if the file exists
+    and it's already locked. Leaving the context cleans the PID file.
+
+    Some methods are implemented for compatibility with lockfile and python-daemon.
+    """
+    def __init__(self, pidfile=None):
+        self.pidfile = pidfile
+        self._fd = None
+
+    def __enter__(self):
+        return self.acquire()
+
+    def __exit__(self):
+        self.release()
+
+    def acquire(self):
+        pid = os.getpid()
+        fd = os.open(self.pidfile, (os.O_CREAT|os.O_EXCL|os.O_WRONLY), 0644)
+        self._fd = os.fdopen(fd, "w")
+        self._fd.write("%s\n" % pid)
+        self._fd.flush()
+        return pid
+
+    def is_locked(self):
+        try:
+            os.stat(self.pidfile)
+        except OSError:
+            return False
+        else:
+            return True
+
+    def i_am_locking(self):
+        return self._fd != None
+
+    def release(self):
+        if self._fd:
+            self._fd.close()
+            os.remove(self.pidfile)
+            self._fd = None
 
 class Main(object):
     def __init__(self):
@@ -138,15 +181,6 @@ class Main(object):
 
         (options, args) = parser.parse_args()
 
-        if not options.pid_file:
-            options.pid_file = "%s/%s.pid" % (tempfile.gettempdir(), __package__)
-
-        try:
-            os.stat(options.pid_file)
-            parser.error("pid-file found: %s\nIs the server already running?" % options.pid_file)
-        except OSError:
-            pass
-
         # required parameters
         if not options.authurl:
             parser.error("No auth-url provided")
@@ -158,6 +192,13 @@ class Main(object):
             self.host_key = paramiko.RSAKey(filename=options.host_key)
         except (IOError, paramiko.SSHException), e:
             parser.error("host-key-file: %s" % e)
+
+        if not options.pid_file:
+            options.pid_file = "%s/%s.pid" % (tempfile.gettempdir(), __package__)
+
+        self.pidfile = PIDFile(options.pid_file)
+        if self.pidfile.is_locked():
+            parser.error("pid-file found: %s\nIs the server already running?" % options.pid_file)
 
         options.max_children = config.get('sftpcloudfs', 'max-children')
         self.options = options
@@ -199,8 +240,6 @@ class Main(object):
                                        authurl=self.options.authurl)
 
         dc = daemon.DaemonContext()
-
-        self.pidfile = PIDLockFile(self.options.pid_file)
         dc.pidfile = self.pidfile
 
         if self.options.uid:
