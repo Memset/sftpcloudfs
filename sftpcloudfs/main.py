@@ -36,9 +36,7 @@ import tempfile
 from Crypto import Random
 import paramiko
 from sftpcloudfs.server import CloudFilesSFTPServer
-from sftpcloudfs.constants import version, project_url
-
-config_file = "/etc/sftpcloudfs.conf"
+from sftpcloudfs.constants import version, project_url, config_file
 
 class PIDFile(object):
     """
