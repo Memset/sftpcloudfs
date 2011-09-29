@@ -262,9 +262,10 @@ class CloudFilesSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
             self.fs.authenticate(username, password)
         except EnvironmentError, e:
             self.log.warning("%s: Failed to authenticate: %s" % (self.client_address, e))
-            self.log.error("Authentication failure for %s from %s" % (username, self.client_address[0]))
+            self.log.error("Authentication failure for %s from %s port %s" % (username,
+                           self.client_address[0], self.client_address[1]))
             return paramiko.AUTH_FAILED
-        self.log.debug("%s: %s authenticated from %s" % (self.__class__.__name__, username, self.cli_addr))
+        self.log.info("%s authenticated from %s" % (username, self.client_address))
         return paramiko.AUTH_SUCCESSFUL
 
     def get_allowed_auths(self,username):
