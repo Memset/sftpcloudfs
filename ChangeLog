@@ -1,3 +1,11 @@
+2011-09-29 Juan Martinez <juan@memset.com>
+
+ * release 0.3:
+
+  - Better PyPi / pip support
+  - Local implementation of PID lock file
+  - Improved logging to show client host/port information
+
 2011-08-19 Juan Martinez <juan@memset.com>
 
  * releases 0.2.1-0.2.3:
