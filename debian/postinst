@@ -1,0 +1,24 @@
+#!/bin/sh
+
+if [ "$1" = "configure" ];then
+	mkdir -m 0750 -p /var/{log,run}/sftp-cloudfs
+	chown daemon: /var/{log,run}/sftp-cloudfs
+fi
+
+# Automatically added by dh_pysupport
+if which update-python-modules >/dev/null 2>&1; then
+	update-python-modules -a
+fi
+# End automatically added section
+
+set -e
+# Automatically added by dh_installinit
+if [ -x "/etc/init.d/python-sftp-cloudfs" ]; then
+	update-rc.d python-sftp-cloudfs defaults >/dev/null
+	if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+		invoke-rc.d python-sftp-cloudfs start || exit $?
+	else
+		/etc/init.d/python-sftp-cloudfs start || exit $?
+	fi
+fi
+# End automatically added section

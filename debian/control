@@ -1,0 +1,15 @@
+Source: sftp-cloudfs
+Section: python
+Priority: optional
+Maintainer: Juan J. Martinez <juan@memset.com>
+Build-Depends-Indep: python-dev (>= 2.3.5-10), python-support (>= 0.2.3), python-setuptools, python-ftp-cloudfs (=> 0.9), python-paramiko
+Build-Depends: debhelper (>= 5.0.37.1), cdbs (>= 0.4.41)
+Standards-Version: 3.7.3
+#XS-Vcs-Svn: 
+
+Package: sftp-cloudfs
+Architecture: all
+Depends: ${python:Depends}, python-cloudfiles (>= 1.3.0), python-pyftpdlib (>= 0.5.2), python-daemon (>= 1.5.0), python-ftp-cloudfs (=> 0.9), python-paramiko
+Recommends: python-docutils
+Description: A SFTP interface to Rackspace Cloud Files
+ This is a SFTP interface to Rackspace Cloud Files.
