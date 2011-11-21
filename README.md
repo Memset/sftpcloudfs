@@ -40,7 +40,16 @@ Or using pip:
 Please use the latest pip version, old versions may have bugs. You
 can upgrade pip using pip: pip install --upgrade pip.
 
+Or using debian packaging:
+
+    debuild -us -uc
+Then
+
+    dpkg -i sftpcloudfs_0.3-1_all.deb
+
+
 You may need to create a host key with ssh-keygen.
+
 
 
 Usage
@@ -98,3 +107,7 @@ Authors
 - Nick Craig-Wood <nick@memset.com>
 - Juan J. Martinez <juan@memset.com>
 
+Contributors
+------------
+
+- Christophe Le Guern <c35sys@gmail.com>

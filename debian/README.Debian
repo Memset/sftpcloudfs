@@ -1,0 +1,16 @@
+sftpcloudfs for Debian
+----------------------
+
+A user (sftpcloudfs) and group (sftpcloudfs) are created to run the daemon.
+
+By default, the package is configured to use logfiles, be aware of it.
+Default Log Location: /var/log/sftpcloudfs/sftpcloudfs.log
+
+Example configuration file: /usr/share/doc/sftpcloudfs/examples/sftpcloudfs.conf.example
+
+A directory /var/run/sftpcloudfs has been created for the PID file.
+
+To generate the RSA key file, do the following:
+ssh-keygen -f /etc/sftpcloudfs/sftpcloudfs.key
+
+ Christophe Le Guern <c35sys@gmail.com>  Mon, 21 Nov 2011 16:11:19 +0100
