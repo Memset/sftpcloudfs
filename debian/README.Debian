@@ -1,91 +1,16 @@
+sftpcloudfs for Debian
+----------------------
 
-====================
-Debian/Ubuntu Readme
-====================
+A user (sftpcloudfs) and group (sftpcloudfs) are created to run the daemon.
 
-Note: tested on Ubuntu Oneiric
+By default, the package is configured to use logfiles, be aware of it.
+Default Log Location: /var/log/sftpcloudfs/sftpcloudfs.log
 
-Package Creation
-================
+Example configuration file: /usr/share/doc/sftpcloudfs/examples/sftpcloudfs.conf.example
 
-- Install necessary packages
-  aptitude install -y git-core python-stdeb debhelper 
-  mkdir /var/tmp/deb
+A directory /var/run/sftpcloudfs has been created for the PID file.
 
-- python-cloudfiles
-  cd /tmp
-  git clone http://github.com/rackspace/python-cloudfiles.git
-  cd python-cloudfiles
-  python setup.py --command-packages=stdeb.command bdist_deb
-  cp /tmp/python-cloudfiles/deb_dist/python-python-cloudfiles_1.7.9.3-1_all.deb /var/tmp/deb
+To generate the RSA key file, do the following:
+ssh-keygen -f /etc/sftpcloudfs/sftpcloudfs.key
 
-- python-pdflib
-  cd /tmp
-  wget http://pyftpdlib.googlecode.com/files/pyftpdlib-0.6.0.tar.gz
-  tar xzf pyftpdlib-0.6.0.tar.gz
-  cd pyftpdlib-0.6.0
-  python setup.py --command-packages=stdeb.command bdist_deb
-  cp deb_dist/python-pyftpdlib_0.6.0-1_all.deb /var/tmp/deb
-
-- python-ftp-cloudfs
-  cd /var/tmp/deb
-  dpkg -i python-python-cloudfiles_1.7.9.3-1_all.deb python-pyftpdlib_0.6.0-1_all.deb
-  aptitude install -y python-daemon
-  apt-file update
-  cd /tmp
-  git clone http://github.com/chmouel/ftp-cloudfs.git
-  cd ftp-cloudfs
-  python setup.py --command-packages=stdeb.command bdist_deb
-  cp deb_dist/python-ftp-cloudfs_0.9-1_all.deb /var/tmp/deb
-
-- Necessary Package Installation
-  dpkg -i /var/tmp/deb/python-ftp-cloudfs_0.9-1_all.deb
-  aptitude install -y python-paramiko
-
-- python-sftp-cloudfs
-cd /tmp
-git clone http://github.com/Memset/sftpcloudfs.git
-cd sftpcloudfs
-python setup.py --command-packages=stdeb.command bdist_deb
-cp /tmp/python-cloudfiles/deb_dist/python-python-cloudfiles_1.7.9.3-1_all.deb /var/tmp/deb
-cp /tmp/sftpcloudfs/deb_dist/python-sftp-cloudfs_0.3-1_all.deb /var/tmp/deb
-
-Package Installation
-====================
-
-  dpkg -i /var/tmp/deb/python-sftp-cloudfs_0.3-1_all.deb
-
-
-Configuration
-=============
-
-
-Generate RSA Key File
-  
-  ssh-keygen -f /etc/sftpcloudfs.key
-
-
-Minimal example configuration in /etc/sftpcloudfs.conf
-
-***********************************************************
-[sftpcloudfs]
-
-# Authentication URL (eg RackSpace Cloud Files, OpenStack)
-# auth-url = (empty)
-auth-url = https://192.168.100.10/auth/v1.0
-
-# Host RSA key used by the server.
-# host-key-file = (empty)
-host-key-file = /etc/sftpcloudfs.key
-
-# Address to bind.
-# bind-address = 127.0.0.1
-bind-address = 0.0.0.0
-***********************************************************
-
-
-Package Log Files
-====================
-
-By default, debian package is configured to use logfiles, be aware of it.
-Note: Have a look at /etc/init.d/python-sftp-cloudfs
+ Christophe Le Guern <c35sys@gmail.com>  Mon, 21 Nov 2011 16:11:19 +0100

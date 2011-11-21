@@ -1,4 +1,4 @@
-/var/log/sftp-cloudfs/sftp-cloudfs.log
+/var/log/sftpcloudfs/sftpcloudfs.log
 {
 	rotate 365
 	daily
@@ -6,8 +6,8 @@
 	missingok
 	notifempty
 	compress
-	create 0640 daemon daemon
+	create 0640 sftpcloudfs sftpcloudfs
 	postrotate
-		invoke-rc.d python-sftp-cloudfs restart >/dev/null 2>&1 || true
+		invoke-rc.d sftpcloudfs restart >/dev/null 2>&1 || true
 	endscript
 }
