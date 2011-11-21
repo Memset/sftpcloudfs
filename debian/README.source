@@ -1,7 +1,7 @@
 sftpcloudfs for Debian
 ----------------------
 
-Tested on Oneiric
+Tested on Ubuntu Oneiric
 
 git clone https://github.com/Memset/sftpcloudfs.git
 mv ftpcloudfs sftpcloudfs-0.3
