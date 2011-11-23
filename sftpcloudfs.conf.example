@@ -24,7 +24,7 @@
 # Enable logging to system logger (daemon facility).
 # syslog = no
 
-# Show detaiuled information on logging.
+# Show detailed information on logging.
 # verbose = no
 
 # Pid file location when in daemon mode.
