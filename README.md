@@ -29,6 +29,8 @@ Requirements:
 These are the minimum recommended versions based in our testing
 environment.
 
+You may need to create a host key with ssh-keygen.
+
 To install the software, run following command:
 
     python setup.py install
@@ -40,16 +42,13 @@ Or using pip:
 Please use the latest pip version, old versions may have bugs. You
 can upgrade pip using pip: pip install --upgrade pip.
 
-Or using debian packaging:
+Or using Debian packaging:
 
     debuild -us -uc
-Then
 
-    dpkg -i sftpcloudfs_0.3-1_all.deb
+and then:
 
-
-You may need to create a host key with ssh-keygen.
-
+    dpkg -i sftpcloudfs_VERSION-1_all.deb
 
 
 Usage
@@ -111,3 +110,4 @@ Contributors
 ------------
 
 - Christophe Le Guern <c35sys@gmail.com>
+
