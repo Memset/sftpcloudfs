@@ -235,7 +235,8 @@ class Main(object):
         """Run the server."""
         server = CloudFilesSFTPServer((self.options.bind_address, self.options.port),
                                        host_key=self.host_key,
-                                       authurl=self.options.authurl)
+                                       authurl=self.options.authurl,
+                                       max_children=self.options.max_children)
 
         dc = daemon.DaemonContext()
         dc.pidfile = self.pidfile

@@ -227,11 +227,12 @@ class CloudFilesSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
     """
     allow_reuse_address = True
 
-    def __init__(self, address, host_key=None, authurl=None):
+    def __init__(self, address, host_key=None, authurl=None, max_children=20):
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start server" % self.__class__.__name__)
         self.fs = CloudFilesFS(None, None, authurl=authurl) # unauthorized
         self.host_key = host_key
+        self.max_children = max_children
         ForkingTCPServer.__init__(self, address, CloudFilesSFTPRequestHandler)
 
     def check_channel_request(self, kind, chanid):
