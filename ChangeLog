@@ -1,3 +1,11 @@
+2011-11-24 Juan Martinez <juan@memset.com>
+
+ * release 0.4:
+
+  - Debian packaging support
+  - Fix: max-children option was not being used
+  - Support for X-Fowarded-For header, requires ftp-cloudfs >= 0.10
+
 2011-09-29 Juan Martinez <juan@memset.com>
 
  * release 0.3:
