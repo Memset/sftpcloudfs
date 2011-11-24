@@ -261,6 +261,7 @@ class CloudFilesSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
             if not password:
                 raise EnvironmentError("no password provided")
             self.fs.authenticate(username, password)
+            self.fs.connection.real_ip = self.client_address[0]
         except EnvironmentError, e:
             self.log.warning("%s: Failed to authenticate: %s" % (self.client_address, e))
             self.log.error("Authentication failure for %s from %s port %s" % (username,
