@@ -3,8 +3,10 @@ sftpcloudfs for Debian
 
 Tested on Ubuntu Oneiric
 
+VERSION=0.4
+
 git clone https://github.com/Memset/sftpcloudfs.git
-mv sftpcloudfs sftpcloudfs-0.3
-tar czf sftpcloudfs_0.3.orig.tar.gz sftpcloudfs-0.3/
-cd sftpcloudfs-0.3
+mv sftpcloudfs sftpcloudfs-$VERSION
+tar czf sftpcloudfs_$VERSION.orig.tar.gz sftpcloudfs-$VERSION/
+cd sftpcloudfs-$VERSION
 debuild -us -uc
