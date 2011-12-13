@@ -1,0 +1,19 @@
+sftpcloudfs (0.4-1) unstable; urgency=low
+
+  - Packages fixes
+   - fix README.source with $VERSION and fix a typo
+   - fix /var/run/sftpcloudfs in init.d (it is in tmpfs)
+   - Modify changelog with 0.4 version
+   - Update ftp-cloudfs version dependency (>= 0.10)
+
+  - Debian packaging support
+  - Fix: max-children option was not being used
+  - Support for X-Fowarded-For header, requires ftp-cloudfs >= 0.10
+
+ -- Christophe Le Guern <c35sys@gmail.com>  Mon, 25 Nov 2011 14:00:00 +0100
+
+sftpcloudfs (0.3-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Christophe Le Guern <c35sys@gmail.com>  Mon, 21 Nov 2011 16:11:19 +0100

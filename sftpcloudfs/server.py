@@ -203,6 +203,7 @@ class CloudFilesSFTPRequestHandler(StreamRequestHandler):
         paramiko.util.get_logger("paramiko.transport").setLevel(logging.CRITICAL)
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start transport" % self.__class__.__name__)
+        self.server.client_address = self.client_address
         t = paramiko.Transport(self.request)
         t.add_server_key(self.server.host_key)
         t.set_subsystem_handler("sftp", paramiko.SFTPServer, SFTPServerInterface, self.server.fs)
@@ -226,17 +227,19 @@ class CloudFilesSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
     """
     allow_reuse_address = True
 
-    def __init__(self, address, host_key=None, authurl=None):
+    def __init__(self, address, host_key=None, authurl=None, max_children=20):
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start server" % self.__class__.__name__)
         self.fs = CloudFilesFS(None, None, authurl=authurl) # unauthorized
         self.host_key = host_key
+        self.max_children = max_children
         ForkingTCPServer.__init__(self, address, CloudFilesSFTPRequestHandler)
 
     def check_channel_request(self, kind, chanid):
         if kind == 'session':
             return paramiko.OPEN_SUCCEEDED
-        self.log.warning("Channel request denied, kind=%s" % kind)
+        self.log.warning("Channel request denied from %s, kind=%s" \
+                         % (self.client_address, kind))
         # all the check_channel_*_request return False by default but
         # sftp subsystem because of the set_subsystem_handler call in
         # the CloudFilesSFTPRequestHandler
@@ -252,18 +255,19 @@ class CloudFilesSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
 
     def check_auth_password(self, username, password):
         """Check whether the given password is valid for authentication."""
-        self.log.info("Auth request (type=password), username=%s" % username)
-
-        if not password:
-            self.log.error("Failed to authenticate: no password provided")
-            return paramiko.AUTH_FAILED
-
+        self.log.info("Auth request (type=password), username=%s, from=%s" \
+                      % (username, self.client_address))
         try:
+            if not password:
+                raise EnvironmentError("no password provided")
             self.fs.authenticate(username, password)
+            self.fs.connection.real_ip = self.client_address[0]
         except EnvironmentError, e:
-            self.log.error("Failed to authenticate: %s" % e)
+            self.log.warning("%s: Failed to authenticate: %s" % (self.client_address, e))
+            self.log.error("Authentication failure for %s from %s port %s" % (username,
+                           self.client_address[0], self.client_address[1]))
             return paramiko.AUTH_FAILED
-        self.log.debug("%s: authenticated" % self.__class__.__name__)
+        self.log.info("%s authenticated from %s" % (username, self.client_address))
         return paramiko.AUTH_SUCCESSFUL
 
     def get_allowed_auths(self,username):
