@@ -32,7 +32,7 @@ class SftpcloudfsTest(unittest.TestCase):
         self.sftp = paramiko.SFTPClient.from_transport(self.transport)
         self.sftp.mkdir("/sftpcloudfs_testing")
         self.sftp.chdir("/sftpcloudfs_testing")
-        self.conn = cloudfiles.get_connection(self.username, self.api_key, authurl=self.auth_url)
+        self.conn = cloudfiles.get_connection(self.username, self.api_key, authurl=self.auth_url, timeout=30)
         self.container = self.conn.get_container('sftpcloudfs_testing')
 
     def create_file(self, path, contents):
