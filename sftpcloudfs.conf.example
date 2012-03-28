@@ -15,6 +15,10 @@
 # Port to bind.
 # port = 8022
 
+# Memcache server(s) for external cache (eg 127.0.0.1:11211)
+# Can be a comma-separated list.
+# memcache = (empty)
+
 # Maximum number of workers.
 # max-children = 20
 
