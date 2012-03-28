@@ -1,3 +1,9 @@
+2012-03-28 Juan Martinez <juan@memset.com>
+
+ * release 0.5:
+
+  - Shared cache support with Memcached, requires ftp-cloudfs >= 0.12.2
+
 2011-11-24 Juan Martinez <juan@memset.com>
 
  * release 0.4:
