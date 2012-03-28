@@ -24,7 +24,8 @@ Requirements:
 - paramiko (1.7.6)
 - python-cloudfiles (1.7.9)
 - python-daemon (1.5.5)
-- ftp-cloudfs (0.9)
+- ftp-cloudfs (0.12.2)
+- python-memcached (1.45)
 
 These are the minimum recommended versions based in our testing
 environment.
@@ -66,6 +67,7 @@ that supports following options:
     -b BIND_ADDRESS, --bind-address=BIND_ADDRESS
                           Address to bind (default: 127.0.0.1)
     -p PORT, --port=PORT  Port to bind (default: 8022)
+    --memcache=MEMCACHE   Memcache server(s) to be used for cache (ip:port)
     -l LOG_FILE, --log-file=LOG_FILE
                           Log into provided file
     -f, --foreground      Run in the foreground (don't detach from terminal)
@@ -77,6 +79,8 @@ that supports following options:
     --config=CONFIG       Use an alternative configuration file
 
 The default location for the configuration file is /etc/sftpcloudfs.conf.
+
+Memcache is optional but highly recommended for better performance.
 
 
 License

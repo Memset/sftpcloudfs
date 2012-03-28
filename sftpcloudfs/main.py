@@ -37,6 +37,7 @@ from Crypto import Random
 import paramiko
 from sftpcloudfs.server import CloudFilesSFTPServer
 from sftpcloudfs.constants import version, project_url, config_file
+from ftpcloudfs.fs import CloudFilesFS
 
 class PIDFile(object):
     """
@@ -99,6 +100,7 @@ class Main(object):
                                   'host-key-file': None,
                                   'bind-address': "127.0.0.1",
                                   'port': 8022,
+                                  'memcache': None,
                                   'max-children': 20,
                                   'log-file': None,
                                   'syslog': 'no',
@@ -133,6 +135,17 @@ class Main(object):
                           type="int",
                           default=config.get('sftpcloudfs', 'port'),
                           help="Port to bind (default: 8022)")
+
+        memcache = config.get('sftpcloudfs', 'memcache')
+        if memcache:
+            memcache = [x.strip() for x in memcache.split(',')]
+        parser.add_option('--memcache',
+                          type="str",
+                          dest="memcache",
+                          action="append",
+                          default=memcache,
+                          help="Memcache server(s) to be used for cache (ip:port)")
+
 
         parser.add_option("-l", "--log-file", dest="log_file",
                           default=config.get('sftpcloudfs', 'log-file'),
@@ -193,6 +206,16 @@ class Main(object):
 
         if not options.pid_file:
             options.pid_file = "%s/%s.pid" % (tempfile.gettempdir(), __package__)
+
+        if options.memcache:
+            CloudFilesFS.memcache_hosts = options.memcache
+            try:
+                CloudFilesFS(None, None)
+            except (ValueError, TypeError):
+                parser.error("memcache: invalid server address, ip:port expected")
+        else:
+            # default is True, and there's no single worker operation
+            CloudFilesFS.single_cache = False
 
         self.pidfile = PIDFile(options.pid_file)
         if self.pidfile.is_locked():
