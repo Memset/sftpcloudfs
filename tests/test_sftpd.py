@@ -366,21 +366,44 @@ class SftpcloudfsTest(unittest.TestCase):
 
         self.sftp.chdir("../..")
 
-        self.container.delete_object(obj1.name)
-        self.container.delete_object(obj2.name)
-        self.container.delete_object(obj3.name)
-        self.container.delete_object(obj4.name)
+        self.sftp.remove("/%s/%s" % (self.container.name, obj1.name))
+        self.sftp.remove("/%s/%s" % (self.container.name, obj2.name))
+        self.sftp.remove("/%s/%s" % (self.container.name, obj3.name))
+        self.sftp.remove("/%s/%s" % (self.container.name, obj4.name))
 
         self.assertEqual(self.sftp.listdir(), [])
 
+    def test_offset_resume(self):
+        ''' seek/resume functionality (seek_set) '''
+        content_string = "This is a chunk of data"*1024
+        self.create_file("testfile.txt", content_string)
+        self.assertEquals(self.sftp.stat("testfile.txt").st_size, len(content_string))
+
+        fd = self.sftp.open("testfile.txt", "rb")
+        contents = fd.read(1024)
+        fd.close()
+
+        fd = self.sftp.open("testfile.txt", "rb")
+        fd.seek(1024)
+        contents += fd.read(512)
+        fd.close()
+
+        fd = self.sftp.open("testfile.txt", "rb")
+        fd.seek(1024+512)
+        contents += fd.read()
+        fd.close()
+
+        self.assertEqual(contents, content_string)
+        self.sftp.remove("testfile.txt")
+
     def tearDown(self):
+        self.sftp.close()
+        self.transport.close()
         # Delete eveything from the container using the API
         fails = self.container.list_objects()
         for obj in fails:
             self.container.delete_object(obj)
-        self.sftp.rmdir("/sftpcloudfs_testing")
-        self.sftp.close()
-        self.transport.close()
+        self.conn.delete_container("sftpcloudfs_testing")
         self.assertEquals(fails, [], "The test failed to clean up after itself leaving these objects: %r" % fails)
 
 if __name__ == '__main__':

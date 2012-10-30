@@ -150,6 +150,14 @@ class SFTPHandle(paramiko.SFTPHandle):
             return parmiko.SFTP_OP_UNSUPPORTED
         if flags & os.O_APPEND:
             mode += "+"
+
+        # we need the file size for r & rw mode; this needs to be performed
+        # BEFORE open so the cache gets invalidated in write operations
+        try:
+            self._size = owner.fs.stat(path).st_size
+        except EnvironmentError:
+            self._size = 0
+
         # FIXME ignores os.O_CREAT, os.O_TRUNC, os.O_EXCL
         self._file = owner.fs.open(path, mode)
         self._tell = 0
@@ -162,8 +170,11 @@ class SFTPHandle(paramiko.SFTPHandle):
     @return_sftp_errors
     def read(self, offset, length):
         if offset != self._tell:
-            return paramiko.SFTP_OP_UNSUPPORTED
-            # FIXME self._file.seek(offset)
+            # this is not an "invalid offset" error
+            if offset > self._size:
+                return paramiko.SFTP_EOF
+            self._file.seek(offset)
+            self._tell = offset
         data = self._file.read(length)
         self._tell += len(data)
         return data
@@ -175,13 +186,16 @@ class SFTPHandle(paramiko.SFTPHandle):
             # FIXME self._file.seek(offset)
         self._file.write(data)
         self._tell += len(data)
+        # update the file size
+        if self._tell > self._size:
+            self._size = self._tell
         return paramiko.SFTP_OK
 
     def stat(self):
         return self.owner.stat(self.path)
 
     def chattr(self,attr):
-        return SFTP_OP_UNSUPPORTED
+        return paramiko.SFTP_OP_UNSUPPORTED
 
 
 class CloudFilesSFTPRequestHandler(StreamRequestHandler):
