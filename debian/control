@@ -8,7 +8,7 @@ Homepage: https://github.com/Memset/sftpcloudfs
 
 Package: sftpcloudfs
 Architecture: all
-Depends: adduser, python, ftp-cloudfs (>= 0.10), python-paramiko (>= 1.7.6), python-daemon (>= 1.5.5), python-cloudfiles (>= 1.7.9)
+Depends: adduser, python, ftp-cloudfs (>= 0.19), python-paramiko (>= 1.7.6), python-daemon (>= 1.5.5), python-cloudfiles (>= 1.7.9), python-memcache (>=1.45)
 Description: SFTP interface to Rackspace Cloud Files and OpenStack Object Storage.
  This is a SFTP interface to Rackspace Cloud Files and OpenStack Object Storage
  allow you to use any SFTP clients to use Cloud Files.

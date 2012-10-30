@@ -1,3 +1,9 @@
+2012-10-30 Juan Martinez <juan@memset.com>
+
+ * release 0.6:
+
+  - Seek support for read operations, requires ftp-cloudfs >= 0.19
+
 2012-03-28 Juan Martinez <juan@memset.com>
 
  * release 0.5:
