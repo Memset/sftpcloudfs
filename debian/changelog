@@ -1,13 +1,14 @@
 sftpcloudfs (0.6-1) unstable; urgency=low
 
+  - Seek support for read operations, requires ftp-cloudfs >= 0.19
 
- -- Juan Martinez <juan@memset.com>  Tue Oct 30 14:49:46 GMT 2012
+ -- Juan Martinez <juan@memset.com>  Tue, 30 Oct 2012 14:49:46 +0000
 
 sftpcloudfs (0.5-1) unstable; urgency=low
 
-  - Seek support for read operations, requires ftp-cloudfs >= 0.19
+  - Shared cache support with Memcached, requires ftp-cloudfs >= 0.12.2
 
- -- Juan Martinez <juan@memset.com>  Wed Mar 28 13:59:50 BST 2012
+ -- Juan Martinez <juan@memset.com>  Wed, 28 Mar 2012 13:59:50 +0100
 
 sftpcloudfs (0.4-1) unstable; urgency=low
 
