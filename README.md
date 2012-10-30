@@ -24,7 +24,7 @@ Requirements:
 - paramiko (1.7.6)
 - python-cloudfiles (1.7.9)
 - python-daemon (1.5.5)
-- ftp-cloudfs (0.12.2)
+- ftp-cloudfs (0.19)
 - python-memcached (1.45)
 
 These are the minimum recommended versions based in our testing
