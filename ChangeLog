@@ -1,3 +1,10 @@
+2013-02-05 Juan Martinez <juan@memset.com>
+
+ * release 0.6.1:
+
+  - Minor release to fix Debian packaging support
+  - Copyright year bump
+
 2012-10-30 Juan Martinez <juan@memset.com>
 
  * release 0.6:
