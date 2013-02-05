@@ -89,12 +89,21 @@ class Main(object):
         global config_file
 
         # look for an alternative configuration file
-        try:
-            alt_config_file = sys.argv.index('--config')
-            alt_config_file = sys.argv[alt_config_file+1]
-            config_file = alt_config_file
-        except (ValueError, IndexError):
-            pass
+        alt_config_file = False
+        # used to show errors before we actually start parsing stuff
+        parser = OptionParser()
+        for arg in sys.argv:
+            if arg == '--config':
+                try:
+                    alt_config_file = sys.argv[sys.argv.index(arg)+1]
+                    config_file = alt_config_file
+                except IndexError:
+                    pass
+            elif arg.startswith('--config='):
+                _, alt_config_file = arg.split('=', 1)
+                if alt_config_file == '':
+                    parser.error("--config option requires an argument")
+                config_file = alt_config_file
 
         config = RawConfigParser({'auth-url': None,
                                   'host-key-file': None,
@@ -110,7 +119,10 @@ class Main(object):
                                   'gid': None,
                                   })
 
-        config.read(config_file)
+        if not config.read(config_file) and alt_config_file:
+            # the default conf file is optional
+            parser.error("failed to read %s" % config_file)
+
         if not config.has_section('sftpcloudfs'):
             config.add_section('sftpcloudfs')
 
