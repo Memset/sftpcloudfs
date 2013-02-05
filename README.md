@@ -43,14 +43,6 @@ Or using pip:
 Please use the latest pip version, old versions may have bugs. You
 can upgrade pip using pip: pip install --upgrade pip.
 
-Or using Debian packaging:
-
-    debuild -us -uc
-
-and then:
-
-    dpkg -i sftpcloudfs_VERSION-1_all.deb
-
 
 Usage
 -----
