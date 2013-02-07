@@ -72,18 +72,18 @@ that supports following options:
     --pid-file=PID_FILE   Pid file location when in daemon mode
     --uid=UID             UID to drop the privileges to when in daemon mode
     --gid=GID             GID to drop the privileges to when in daemon mode
-    --keystone-auth       Use auth 2.0 (Keystone, requires keystoneclient).
+    --keystone-auth       Use auth 2.0 (Keystone, requires keystoneclient)
     --keystone-region-name=REGION_NAME
-                          Region name to be used in auth 2.0.
+                          Region name to be used in auth 2.0
     --keystone-tenant-separator=TENANT_SEPARATOR
                           Character used to separate tenant_name/username in
-                          auth 2.0, default: TENANT.USERNAME.
+                          auth 2.0, default: TENANT.USERNAME
     --keystone-service-type=SERVICE_TYPE
                           Service type to be used in auth 2.0, default: object-
-                          store.
+                          store
     --keystone-endpoint-type=ENDPOINT_TYPE
                           Endpoint type to be used in auth 2.0, default:
-                          publicURL.
+                          publicURL
     --config=CONFIG       Use an alternative configuration file
 
 The default location for the configuration file is /etc/sftpcloudfs.conf.

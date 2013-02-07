@@ -135,7 +135,7 @@ class Main(object):
 
         parser = OptionParser(version="%prog " + version,
                               description="This is a SFTP interface to Rackspace " + \
-                                    "Cloud Files and Open Stack Object Storage (Swift).",
+                                    "Cloud Files and OpenStack Object Storage (Swift).",
                               epilog="Contact and support at: %s" % project_url)
 
         parser.add_option("-a", "--auth-url", dest="authurl",
@@ -207,32 +207,32 @@ class Main(object):
                           action="store_true",
                           dest="keystone",
                           default=config.get('sftpcloudfs', 'keystone-auth'),
-                          help="Use auth 2.0 (Keystone, requires keystoneclient).")
+                          help="Use auth 2.0 (Keystone, requires keystoneclient)")
 
         parser.add_option('--keystone-region-name',
                           type="str",
                           dest="region_name",
                           default=config.get('sftpcloudfs', 'keystone-region-name'),
-                          help="Region name to be used in auth 2.0.")
+                          help="Region name to be used in auth 2.0")
 
         parser.add_option('--keystone-tenant-separator',
                           type="str",
                           dest="tenant_separator",
                           default=config.get('sftpcloudfs', 'keystone-tenant-separator'),
                           help="Character used to separate tenant_name/username in auth 2.0, " + \
-                              "default: TENANT%sUSERNAME." % default_ks_tenant_separator)
+                              "default: TENANT%sUSERNAME" % default_ks_tenant_separator)
 
         parser.add_option('--keystone-service-type',
                           type="str",
                           dest="service_type",
                           default=config.get('sftpcloudfs', 'keystone-service-type'),
-                          help="Service type to be used in auth 2.0, default: %s." % default_ks_service_type)
+                          help="Service type to be used in auth 2.0, default: %s" % default_ks_service_type)
 
         parser.add_option('--keystone-endpoint-type',
                           type="str",
                           dest="endpoint_type",
                           default=config.get('sftpcloudfs', 'keystone-endpoint-type'),
-                          help="Endpoint type to be used in auth 2.0, default: %s." % default_ks_endpoint_type)
+                          help="Endpoint type to be used in auth 2.0, default: %s" % default_ks_endpoint_type)
 
         parser.add_option('--config',
                           type="str",
