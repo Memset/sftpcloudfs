@@ -1,3 +1,12 @@
+2013-02-07 Juan Martinez <juan@memset.com>
+
+ * release 0.7:
+
+  - Auth 2.0 (keystone) support, requires ftp-cloudfs >= 0.20 and
+    python-keystoneclient >= 0.1.3.66
+  - Fixed a bug in the alternative configuration file handling with
+    --config=FILE parameter
+
 2013-02-05 Juan Martinez <juan@memset.com>
 
  * release 0.6.1:
