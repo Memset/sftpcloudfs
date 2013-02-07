@@ -1,5 +1,5 @@
-sftpd cloudfs
-=============
+sftp cloudfs
+============
 
 This is a SFTP (Secure File Transfer Protocol) interface to Rackspace
 Cloud Files and OpenStack Object Storage, providing a service that
@@ -24,8 +24,12 @@ Requirements:
 - paramiko (1.7.6)
 - python-cloudfiles (1.7.9)
 - python-daemon (1.5.5)
-- ftp-cloudfs (0.19)
+- ftp-cloudfs (0.20)
 - python-memcached (1.45)
+
+Optional, only for Auth 2.0 (Keystone):
+
+- python-keystoneclient 0.1.3.66 or later
 
 These are the minimum recommended versions based in our testing
 environment.
@@ -68,11 +72,30 @@ that supports following options:
     --pid-file=PID_FILE   Pid file location when in daemon mode
     --uid=UID             UID to drop the privileges to when in daemon mode
     --gid=GID             GID to drop the privileges to when in daemon mode
+    --keystone-auth       Use auth 2.0 (Keystone, requires keystoneclient).
+    --keystone-region-name=REGION_NAME
+                          Region name to be used in auth 2.0.
+    --keystone-tenant-separator=TENANT_SEPARATOR
+                          Character used to separate tenant_name/username in
+                          auth 2.0, default: TENANT.USERNAME.
+    --keystone-service-type=SERVICE_TYPE
+                          Service type to be used in auth 2.0, default: object-
+                          store.
+    --keystone-endpoint-type=ENDPOINT_TYPE
+                          Endpoint type to be used in auth 2.0, default:
+                          publicURL.
     --config=CONFIG       Use an alternative configuration file
 
 The default location for the configuration file is /etc/sftpcloudfs.conf.
 
 Memcache is optional but highly recommended for better performance.
+
+By default Swift auth 1.0 will be used, and is compatible with Rackspace Cloud Files and
+OpenStack Object Storage (Swift) using swauth authentication middleware.
+
+Optionally OpenStack Identity Service 2.0 (*aka* keystone) can be used. Currently python-keystoneclient
+is required to use auth 2.0 and it can be enabled with *--keystone-auth* option. Please check the
+example configuration file for further details.
 
 
 License

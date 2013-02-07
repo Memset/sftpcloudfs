@@ -36,7 +36,8 @@ import tempfile
 from Crypto import Random
 import paramiko
 from sftpcloudfs.server import CloudFilesSFTPServer
-from sftpcloudfs.constants import version, project_url, config_file
+from sftpcloudfs.constants import version, project_url, config_file, default_ks_service_type, \
+    default_ks_tenant_separator, default_ks_endpoint_type
 from ftpcloudfs.fs import CloudFilesFS
 
 class PIDFile(object):
@@ -117,6 +118,12 @@ class Main(object):
                                   'pid-file': None,
                                   'uid': None,
                                   'gid': None,
+                                  # keystone auth 2.0 support
+                                  'keystone-auth': False,
+                                  'keystone-region-name': None,
+                                  'keystone-tenant-separator': default_ks_tenant_separator,
+                                  'keystone-service-type': default_ks_service_type,
+                                  'keystone-endpoint-type': default_ks_endpoint_type,
                                   })
 
         if not config.read(config_file) and alt_config_file:
@@ -196,6 +203,37 @@ class Main(object):
                           default=config.get('sftpcloudfs', 'gid'),
                           help="GID to drop the privileges to when in daemon mode")
 
+        parser.add_option('--keystone-auth',
+                          action="store_true",
+                          dest="keystone",
+                          default=config.get('sftpcloudfs', 'keystone-auth'),
+                          help="Use auth 2.0 (Keystone, requires keystoneclient).")
+
+        parser.add_option('--keystone-region-name',
+                          type="str",
+                          dest="region_name",
+                          default=config.get('sftpcloudfs', 'keystone-region-name'),
+                          help="Region name to be used in auth 2.0.")
+
+        parser.add_option('--keystone-tenant-separator',
+                          type="str",
+                          dest="tenant_separator",
+                          default=config.get('sftpcloudfs', 'keystone-tenant-separator'),
+                          help="Character used to separate tenant_name/username in auth 2.0, " + \
+                              "default: TENANT%sUSERNAME." % default_ks_tenant_separator)
+
+        parser.add_option('--keystone-service-type',
+                          type="str",
+                          dest="service_type",
+                          default=config.get('sftpcloudfs', 'keystone-service-type'),
+                          help="Service type to be used in auth 2.0, default: %s." % default_ks_service_type)
+
+        parser.add_option('--keystone-endpoint-type',
+                          type="str",
+                          dest="endpoint_type",
+                          default=config.get('sftpcloudfs', 'keystone-endpoint-type'),
+                          help="Endpoint type to be used in auth 2.0, default: %s." % default_ks_endpoint_type)
+
         parser.add_option('--config',
                           type="str",
                           dest="config",
@@ -234,6 +272,11 @@ class Main(object):
             parser.error("pid-file found: %s\nIs the server already running?" % options.pid_file)
 
         options.max_children = config.get('sftpcloudfs', 'max-children')
+
+        if options.keystone:
+            keystone_keys = ('region_name', 'tenant_separator', 'service_type', 'endpoint_type')
+            options.keystone = dict((key, getattr(options, key)) for key in keystone_keys)
+
         self.options = options
 
     def setup_log(self):
@@ -271,7 +314,9 @@ class Main(object):
         server = CloudFilesSFTPServer((self.options.bind_address, self.options.port),
                                        host_key=self.host_key,
                                        authurl=self.options.authurl,
-                                       max_children=self.options.max_children)
+                                       max_children=self.options.max_children,
+                                       keystone=self.options.keystone,
+                                       )
 
         dc = daemon.DaemonContext()
         dc.pidfile = self.pidfile
