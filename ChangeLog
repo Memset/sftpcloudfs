@@ -1,3 +1,10 @@
+2013-06-12 Juan Martinez <juan@memset.com>
+
+ * release 0.8:
+
+  - updated to work with ftp-cloudfs >= 0.21
+  - increased paramiko transport log from CRITICAL to ERROR
+
 2013-02-07 Juan Martinez <juan@memset.com>
 
  * release 0.7:
