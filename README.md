@@ -21,7 +21,7 @@ Install
 Requirements:
 
 - python (2.6)
-- paramiko (1.7.6)
+- paramiko (1.7.6+; 1.10.1 recommended)
 - python-cloudfiles (1.7.9)
 - python-daemon (1.5.5)
 - ftp-cloudfs (0.20)
