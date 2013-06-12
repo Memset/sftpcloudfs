@@ -24,7 +24,7 @@ Requirements:
 - paramiko (1.7.6+; 1.10.1 recommended)
 - python-cloudfiles (1.7.9)
 - python-daemon (1.5.5)
-- ftp-cloudfs (0.20)
+- ftp-cloudfs (0.21)
 - python-memcached (1.45)
 
 Optional, only for Auth 2.0 (Keystone):
