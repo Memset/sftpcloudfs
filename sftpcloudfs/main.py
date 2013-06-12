@@ -263,9 +263,6 @@ class Main(object):
                 CloudFilesFS(None, None)
             except (ValueError, TypeError):
                 parser.error("memcache: invalid server address, ip:port expected")
-        else:
-            # default is True, and there's no single worker operation
-            CloudFilesFS.single_cache = False
 
         self.pidfile = PIDFile(options.pid_file)
         if self.pidfile.is_locked():

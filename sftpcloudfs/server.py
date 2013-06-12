@@ -35,6 +35,7 @@ import paramiko
 from Crypto import Random
 
 from ftpcloudfs.fs import CloudFilesFS
+from ftpcloudfs.utils import smart_str
 from StringIO import StringIO
 from functools import wraps
 
@@ -69,8 +70,7 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
 
     def __init__(self, server, fs, *args, **kwargs):
         self.fs = fs
-        if not CloudFilesFS.single_cache:
-            self.fs.flush()
+        self.fs.flush()
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start filesystem interface" % self.__class__.__name__)
         super(SFTPServerInterface,self).__init__(server, *args, **kwargs)
@@ -81,7 +81,7 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
 
     @return_sftp_errors
     def list_folder(self, path):
-        return [ paramiko.SFTPAttributes.from_stat(stat, leaf)
+        return [ paramiko.SFTPAttributes.from_stat(stat, smart_str(leaf))
                  for leaf, stat in self.fs.listdir_with_stat(path) ]
 
     @return_sftp_errors
@@ -114,7 +114,7 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
         return paramiko.SFTP_OK
 
     def canonicalize(self, path):
-        return self.fs.abspath(self.fs.normpath(path))
+        return smart_str(self.fs.abspath(self.fs.normpath(path)))
 
     @return_sftp_errors
     def chattr(self, path, attr):
@@ -147,7 +147,7 @@ class SFTPHandle(paramiko.SFTPHandle):
             mode = "rw"
         else:
             self.log.error("Bad open mode %r" % flags)
-            return parmiko.SFTP_OP_UNSUPPORTED
+            return paramiko.SFTP_OP_UNSUPPORTED
         if flags & os.O_APPEND:
             mode += "+"
 
@@ -215,7 +215,7 @@ class CloudFilesSFTPRequestHandler(StreamRequestHandler):
 
     def handle(self):
         Random.atfork()
-        paramiko.util.get_logger("paramiko.transport").setLevel(logging.CRITICAL)
+        paramiko.util.get_logger("paramiko.transport").setLevel(logging.ERROR)
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start transport" % self.__class__.__name__)
         self.server.client_address = self.client_address
