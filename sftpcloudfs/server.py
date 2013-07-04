@@ -70,7 +70,6 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
 
     def __init__(self, server, fs, *args, **kwargs):
         self.fs = fs
-        self.fs.flush()
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start filesystem interface" % self.__class__.__name__)
         super(SFTPServerInterface,self).__init__(server, *args, **kwargs)
