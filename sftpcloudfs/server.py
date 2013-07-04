@@ -39,7 +39,7 @@ from ftpcloudfs.utils import smart_str
 from StringIO import StringIO
 from functools import wraps
 
-from posixpath import basename #FIXME put in cloudfilesfs?
+from posixpath import basename
 from sftpcloudfs.constants import version
 
 def return_sftp_errors(func):
@@ -65,7 +65,7 @@ def return_sftp_errors(func):
 
 class SFTPServerInterface(paramiko.SFTPServerInterface):
     """
-    SFTPServerInterface implementation that exposes a CloudFilesFS object
+    SFTPServerInterface implementation that exposes a CloudFilesFS object.
     """
 
     def __init__(self, server, fs, *args, **kwargs):
@@ -128,7 +128,7 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
 
 class SFTPHandle(paramiko.SFTPHandle):
     """
-    Expose a CloudFilesFD object to SFTP
+    Expose a CloudFilesFD object to SFTP.
     """
 
     def __init__(self, owner, path, flags):
@@ -237,7 +237,7 @@ class CloudFilesSFTPRequestHandler(StreamRequestHandler):
 
 class CloudFilesSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
     """
-    Expose a CloudFilesFS object over SFTP
+    Expose a CloudFilesFS object over SFTP.
     """
     allow_reuse_address = True
 
