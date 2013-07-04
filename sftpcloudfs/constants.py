@@ -1,4 +1,4 @@
-version = "0.8"
+version = "0.8.1"
 project_url = "https://github.com/memset/sftpcloudfs"
 config_file = "/etc/sftpcloudfs.conf"
 

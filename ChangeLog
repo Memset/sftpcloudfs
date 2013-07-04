@@ -1,3 +1,11 @@
+2013-07-04 Juan Martinez <juan@memset.com>
+
+ * release 0.8.1:
+
+  - Minor release to fix a bug that was reducing the efficiency of the
+    shared cache
+  - Reverted paramiko transport log to CRITICAL
+
 2013-06-12 Juan Martinez <juan@memset.com>
 
  * release 0.8:
