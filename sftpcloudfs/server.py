@@ -215,7 +215,7 @@ class CloudFilesSFTPRequestHandler(StreamRequestHandler):
 
     def handle(self):
         Random.atfork()
-        paramiko.util.get_logger("paramiko.transport").setLevel(logging.ERROR)
+        paramiko.util.get_logger("paramiko.transport").setLevel(logging.CRITICAL)
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start transport" % self.__class__.__name__)
         self.server.client_address = self.client_address
