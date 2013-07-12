@@ -300,6 +300,8 @@ class Main(object):
             self.log.addHandler(handler)
 
         if self.options.verbose:
+            # enable debug for the root logger (used by CloudFilesFS)
+            logging.getLogger().setLevel(logging.DEBUG)
             self.log.setLevel(logging.DEBUG)
             self.log.debug(self.options)
         else:
