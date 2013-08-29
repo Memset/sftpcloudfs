@@ -35,10 +35,10 @@ import daemon
 import tempfile
 from Crypto import Random
 import paramiko
-from sftpcloudfs.server import CloudFilesSFTPServer
+from sftpcloudfs.server import ObjectStorageSFTPServer
 from sftpcloudfs.constants import version, project_url, config_file, default_ks_service_type, \
     default_ks_tenant_separator, default_ks_endpoint_type
-from ftpcloudfs.fs import CloudFilesFS
+from ftpcloudfs.fs import ObjectStorageFS
 
 class PIDFile(object):
     """
@@ -134,8 +134,8 @@ class Main(object):
             config.add_section('sftpcloudfs')
 
         parser = OptionParser(version="%prog " + version,
-                              description="This is a SFTP interface to Rackspace " + \
-                                    "Cloud Files and OpenStack Object Storage (Swift).",
+                              description="This is a SFTP interface to OpenStack " + \
+                                    "Object Storage (Swift).",
                               epilog="Contact and support at: %s" % project_url)
 
         parser.add_option("-a", "--auth-url", dest="authurl",
@@ -258,9 +258,9 @@ class Main(object):
             options.pid_file = "%s/%s.pid" % (tempfile.gettempdir(), __package__)
 
         if options.memcache:
-            CloudFilesFS.memcache_hosts = options.memcache
+            ObjectStorageFS.memcache_hosts = options.memcache
             try:
-                CloudFilesFS(None, None)
+                ObjectStorageFS(None, None, None)
             except (ValueError, TypeError):
                 parser.error("memcache: invalid server address, ip:port expected")
 
@@ -300,7 +300,7 @@ class Main(object):
             self.log.addHandler(handler)
 
         if self.options.verbose:
-            # enable debug for the root logger (used by CloudFilesFS)
+            # enable debug for the root logger (used by ObjectStorageFS)
             logging.getLogger().setLevel(logging.DEBUG)
             self.log.setLevel(logging.DEBUG)
             self.log.debug(self.options)
@@ -310,12 +310,12 @@ class Main(object):
 
     def run(self):
         """Run the server."""
-        server = CloudFilesSFTPServer((self.options.bind_address, self.options.port),
-                                       host_key=self.host_key,
-                                       authurl=self.options.authurl,
-                                       max_children=self.options.max_children,
-                                       keystone=self.options.keystone,
-                                       )
+        server = ObjectStorageSFTPServer((self.options.bind_address, self.options.port),
+                                          host_key=self.host_key,
+                                          authurl=self.options.authurl,
+                                          max_children=self.options.max_children,
+                                          keystone=self.options.keystone,
+                                          )
 
         dc = daemon.DaemonContext()
         dc.pidfile = self.pidfile

@@ -3,7 +3,7 @@
 
 [sftpcloudfs]
 
-# Authentication URL (eg RackSpace Cloud Files, OpenStack)
+# Authentication URL (eg Memstore, RackSpace Cloud Files, OpenStack)
 # auth-url = (empty)
 
 # Host RSA key used by the server.

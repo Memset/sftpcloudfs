@@ -27,20 +27,16 @@ THE SOFTWARE.
 import logging
 
 import os
-import stat as statinfo
-import time
 from SocketServer import StreamRequestHandler, ForkingTCPServer
 
 import paramiko
 from Crypto import Random
 
-from ftpcloudfs.fs import CloudFilesFS
+from ftpcloudfs.fs import ObjectStorageFS
 from ftpcloudfs.utils import smart_str
-from StringIO import StringIO
 from functools import wraps
 
 from posixpath import basename
-from sftpcloudfs.constants import version
 
 def return_sftp_errors(func):
     """
@@ -65,7 +61,7 @@ def return_sftp_errors(func):
 
 class SFTPServerInterface(paramiko.SFTPServerInterface):
     """
-    SFTPServerInterface implementation that exposes a CloudFilesFS object.
+    SFTPServerInterface implementation that exposes a ObjectStorageFS object.
     """
 
     def __init__(self, server, fs, *args, **kwargs):
@@ -128,7 +124,7 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
 
 class SFTPHandle(paramiko.SFTPHandle):
     """
-    Expose a CloudFilesFD object to SFTP.
+    Expose a ObjectStorageFD object to SFTP.
     """
 
     def __init__(self, owner, path, flags):
@@ -197,9 +193,9 @@ class SFTPHandle(paramiko.SFTPHandle):
         return paramiko.SFTP_OP_UNSUPPORTED
 
 
-class CloudFilesSFTPRequestHandler(StreamRequestHandler):
+class ObjectStorageSFTPRequestHandler(StreamRequestHandler):
     """
-    SocketServer RequestHandler subclass for CloudFilesSFTPServer.
+    SocketServer RequestHandler subclass for ObjectStorageSFTPServer.
 
     This RequestHandler subclass creates a paramiko Transport, sets up the
     sftp subsystem, and hands off to the transport's own request handling
@@ -235,19 +231,19 @@ class CloudFilesSFTPRequestHandler(StreamRequestHandler):
         while t.isAlive():
             t.join(timeout=10)
 
-class CloudFilesSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
+class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
     """
-    Expose a CloudFilesFS object over SFTP.
+    Expose a ObjectStorageFS object over SFTP.
     """
     allow_reuse_address = True
 
     def __init__(self, address, host_key=None, authurl=None, max_children=20, keystone=None):
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start server" % self.__class__.__name__)
-        self.fs = CloudFilesFS(None, None, authurl=authurl, keystone=keystone) # unauthorized
+        self.fs = ObjectStorageFS(None, None, authurl=authurl, keystone=keystone) # unauthorized
         self.host_key = host_key
         self.max_children = max_children
-        ForkingTCPServer.__init__(self, address, CloudFilesSFTPRequestHandler)
+        ForkingTCPServer.__init__(self, address, ObjectStorageSFTPRequestHandler)
 
     def check_channel_request(self, kind, chanid):
         if kind == 'session':
@@ -256,7 +252,7 @@ class CloudFilesSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
                          % (self.client_address, kind))
         # all the check_channel_*_request return False by default but
         # sftp subsystem because of the set_subsystem_handler call in
-        # the CloudFilesSFTPRequestHandler
+        # the ObjectStorageSFTPRequestHandler
         return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 
     def check_auth_none(self, username):
@@ -275,12 +271,12 @@ class CloudFilesSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
             if not password:
                 raise EnvironmentError("no password provided")
             self.fs.authenticate(username, password)
-            self.fs.connection.real_ip = self.client_address[0]
         except EnvironmentError, e:
             self.log.warning("%s: Failed to authenticate: %s" % (self.client_address, e))
             self.log.error("Authentication failure for %s from %s port %s" % (username,
                            self.client_address[0], self.client_address[1]))
             return paramiko.AUTH_FAILED
+        self.fs.conn.real_ip = self.client_address[0]
         self.log.info("%s authenticated from %s" % (username, self.client_address))
         return paramiko.AUTH_SUCCESSFUL
 

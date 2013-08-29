@@ -2,9 +2,8 @@
 import unittest
 import os
 import sys
-from datetime import datetime
 from time import time
-import cloudfiles
+from swiftclient import client
 import paramiko
 import stat
 
@@ -18,22 +17,24 @@ class SftpcloudfsTest(unittest.TestCase):
     ''' FTP Cloud FS main test '''
 
     def setUp(self):
-        if not all(['RCLOUD_API_KEY' in os.environ,
-                    'RCLOUD_API_USER' in os.environ]):
-            print "env RCLOUD_API_USER or RCLOUD_API_KEY not found."
+        if not all(['OS_API_KEY' in os.environ,
+                    'OS_API_USER' in os.environ,
+                    'OS_AUTH_URL' in os.environ,
+                    ]):
+            print "env OS_API_USER/OS_API_KEY/OS_AUTH_URL not found."
             sys.exit(1)
 
-        self.username = os.environ['RCLOUD_API_USER']
-        self.api_key = os.environ['RCLOUD_API_KEY']
-        self.auth_url = os.environ.get('RCLOUD_AUTH_URL')
+        self.username = os.environ['OS_API_USER']
+        self.api_key = os.environ['OS_API_KEY']
+        self.auth_url = os.environ.get('OS_AUTH_URL')
 
         self.transport = paramiko.Transport((hostname, port))
         self.transport.connect(username=self.username, password=self.api_key) #, hostkey=hostkey)
         self.sftp = paramiko.SFTPClient.from_transport(self.transport)
-        self.sftp.mkdir("/sftpcloudfs_testing")
-        self.sftp.chdir("/sftpcloudfs_testing")
-        self.conn = cloudfiles.get_connection(self.username, self.api_key, authurl=self.auth_url, timeout=30)
-        self.container = self.conn.get_container('sftpcloudfs_testing')
+        self.container = "sftpcloudfs_testing"
+        self.sftp.mkdir("/%s" % self.container)
+        self.sftp.chdir("/%s" % self.container)
+        self.conn = client.Connection(user=self.username, key=self.api_key, authurl=self.auth_url)
 
     def create_file(self, path, contents):
         '''Create path with contents'''
@@ -98,7 +99,7 @@ class SftpcloudfsTest(unittest.TestCase):
         content_string = "Hello Moto"
         self.create_file("testfile.txt", content_string)
         self.assertEquals(self.sftp.stat("testfile.txt").st_size, len(content_string))
-        retrieved = self.read_file("/sftpcloudfs_testing/potato/testfile.txt")
+        retrieved = self.read_file("/%s/potato/testfile.txt" % self.container)
         self.assertEqual(retrieved, content_string)
         self.sftp.remove("testfile.txt")
         self.sftp.chdir("..")
@@ -113,7 +114,7 @@ class SftpcloudfsTest(unittest.TestCase):
     def test_chdir_to_a_file(self):
         ''' chdir to a file '''
         self.create_file("testfile.txt", "Hello Moto")
-        self.assertRaises(paramiko.SFTPError, self.sftp.chdir, "/sftpcloudfs_testing/testfile.txt")
+        self.assertRaises(paramiko.SFTPError, self.sftp.chdir, "/%s/testfile.txt" % self.container)
         self.sftp.remove("testfile.txt")
 
     def test_chdir_to_slash(self):
@@ -127,17 +128,17 @@ class SftpcloudfsTest(unittest.TestCase):
     def test_chdir_to_nonexistent_directory(self):
         ''' chdir to nonexistend directory'''
         self.assertRaises(EnvironmentError, self.sftp.chdir, "i_dont_exist")
-        self.assertRaises(EnvironmentError, self.sftp.chdir, "/sftpcloudfs_testing/i_dont_exist")
+        self.assertRaises(EnvironmentError, self.sftp.chdir, "/%s/i_dont_exist" % self.container)
 
     def test_listdir_root(self):
         ''' list root directory '''
         self.sftp.chdir("/")
         ls = self.sftp.listdir()
-        self.assertTrue('sftpcloudfs_testing' in ls)
+        self.assertTrue(self.container in ls)
         self.assertTrue('potato' not in ls)
         self.sftp.mkdir("potato")
         ls = self.sftp.listdir()
-        self.assertTrue('sftpcloudfs_testing' in ls)
+        self.assertTrue(self.container in ls)
         self.assertTrue('potato' in ls)
         self.sftp.rmdir("potato")
 
@@ -241,7 +242,7 @@ class SftpcloudfsTest(unittest.TestCase):
         '''rename a directory into a file - shouldn't work'''
         content_string = "Hello Moto"
         self.create_file("testfile.txt", content_string)
-        self.assertRaises(EnvironmentError, self.sftp.rename, "/sftpcloudfs_testing", "testfile.txt")
+        self.assertRaises(EnvironmentError, self.sftp.rename, "/%s" % self.container, "testfile.txt")
         self.sftp.remove("testfile.txt")
 
     def test_rename_directory_into_directory(self):
@@ -268,13 +269,13 @@ class SftpcloudfsTest(unittest.TestCase):
         '''rename a directory into itself'''
         self.sftp.mkdir("potato")
         self.assertEquals(self.sftp.listdir("potato"), [])
-        self.sftp.rename("potato", "/sftpcloudfs_testing")
+        self.sftp.rename("potato", "/%s" % self.container)
         self.assertEquals(self.sftp.listdir("potato"), [])
-        self.sftp.rename("potato", "/sftpcloudfs_testing/potato")
+        self.sftp.rename("potato", "/%s/potato" % self.container)
         self.assertEquals(self.sftp.listdir("potato"), [])
         self.sftp.rename("potato", "potato")
         self.assertEquals(self.sftp.listdir("potato"), [])
-        self.sftp.rename("/sftpcloudfs_testing/potato", ".")
+        self.sftp.rename("/%s/potato" % self.container, ".")
         self.assertEquals(self.sftp.listdir("potato"), [])
         self.sftp.rmdir("potato")
 
@@ -335,21 +336,9 @@ class SftpcloudfsTest(unittest.TestCase):
     def test_fakedir(self):
         '''Make some fake directories and test'''
 
-        obj1 = self.container.create_object("test1.txt")
-        obj1.content_type = "text/plain"
-        obj1.write("Hello Moto")
-
-        obj2 = self.container.create_object("potato/test2.txt")
-        obj2.content_type = "text/plain"
-        obj2.write("Hello Moto")
-
-        obj3 = self.container.create_object("potato/sausage/test3.txt")
-        obj3.content_type = "text/plain"
-        obj3.write("Hello Moto")
-
-        obj4 = self.container.create_object("potato/sausage/test4.txt")
-        obj4.content_type = "text/plain"
-        obj4.write("Hello Moto")
+        objs  = [ "test1.txt", "potato/test2.txt", "potato/sausage/test3.txt", "potato/sausage/test4.txt", ]
+        for obj in objs:
+            self.conn.put_object(self.container, obj, content_type="text/plain", contents="Hello Moto")
 
         self.assertEqual(self.sftp.listdir(), ["potato", "test1.txt"])
         self.assertEqual(self.sftp.listdir("potato"), ["sausage","test2.txt"])
@@ -366,10 +355,9 @@ class SftpcloudfsTest(unittest.TestCase):
 
         self.sftp.chdir("../..")
 
-        self.sftp.remove("/%s/%s" % (self.container.name, obj1.name))
-        self.sftp.remove("/%s/%s" % (self.container.name, obj2.name))
-        self.sftp.remove("/%s/%s" % (self.container.name, obj3.name))
-        self.sftp.remove("/%s/%s" % (self.container.name, obj4.name))
+        objs  = [ "test1.txt", "potato/test2.txt", "potato/sausage/test3.txt", "potato/sausage/test4.txt", ]
+        for obj in objs:
+            self.sftp.remove("/%s/%s" % (self.container, obj))
 
         self.assertEqual(self.sftp.listdir(), [])
 
@@ -400,10 +388,10 @@ class SftpcloudfsTest(unittest.TestCase):
         self.sftp.close()
         self.transport.close()
         # Delete eveything from the container using the API
-        fails = self.container.list_objects()
+        _,fails = self.conn.get_container(self.container)
         for obj in fails:
-            self.container.delete_object(obj)
-        self.conn.delete_container("sftpcloudfs_testing")
+            self.conn.delete_object(self.container, obj["name"])
+        self.conn.delete_container(self.container)
         self.assertEquals(fails, [], "The test failed to clean up after itself leaving these objects: %r" % fails)
 
 if __name__ == '__main__':

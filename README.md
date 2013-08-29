@@ -1,10 +1,9 @@
 sftp cloudfs
 ============
 
-This is a SFTP (Secure File Transfer Protocol) interface to Rackspace
-Cloud Files and OpenStack Object Storage, providing a service that
-acts as a proxy between a SFTP client and a remote files/storage
-service.
+This is a SFTP (Secure File Transfer Protocol) interface to OpenStack
+Object Storage, providing a service that acts as a proxy between a
+SFTP client and a storage service.
 
 The username/password pair used to open the SFTP session is validated
 using the authentication service of the files/storage service to get
@@ -22,14 +21,10 @@ Requirements:
 
 - python (2.6)
 - paramiko (1.7.6+; 1.10.1 recommended)
-- python-cloudfiles (1.7.9)
+- python-swiftclient (1.2+)
 - python-daemon (1.5.5)
-- ftp-cloudfs (0.21.1)
+- ftp-cloudfs (0.23+)
 - python-memcached (1.45)
-
-Optional, only for Auth 2.0 (Keystone):
-
-- python-keystoneclient 0.1.3.66 or later
 
 These are the minimum recommended versions based in our testing
 environment.
@@ -90,12 +85,13 @@ The default location for the configuration file is /etc/sftpcloudfs.conf.
 
 Memcache is optional but highly recommended for better performance.
 
-By default Swift auth 1.0 will be used, and is compatible with Rackspace Cloud Files and
-OpenStack Object Storage (Swift) using swauth authentication middleware.
+By default Swift auth 1.0 will be used, and is compatible with OpenStack
+Object Storage (Swift) using swauth authentication middleware.
 
-Optionally OpenStack Identity Service 2.0 (*aka* keystone) can be used. Currently python-keystoneclient
-is required to use auth 2.0 and it can be enabled with *--keystone-auth* option. Please check the
-example configuration file for further details.
+Optionally OpenStack Identity Service 2.0 (*aka* keystone) can be used. Currently
+python-keystoneclient is required to use auth 2.0 and it can be enabled with
+*--keystone-auth* option. Please check the example configuration file for
+further details.
 
 
 License
