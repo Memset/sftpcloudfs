@@ -1,3 +1,15 @@
+2013-08-29 Juan Martinez <juan@memset.com>
+
+ * release 0.9:
+
+  - Ported to use python-swiftclient instead of python-cloudfiles.
+  - ftp-cloudfs 0.23+ is required
+
+  From now on the project will focus on OpenStack Object Storage (swift);
+  although Rackspace Cloud Files is still compatible.
+
+  If you want to keep using python-cloudfiles, please use 0.8.1 with ftp-cloudfs 0.22.
+
 2013-07-04 Juan Martinez <juan@memset.com>
 
  * release 0.8.1:
@@ -5,6 +17,8 @@
   - Minor release to fix a bug that was reducing the efficiency of the
     shared cache
   - Reverted paramiko transport log to CRITICAL
+
+IMPORTANT: this is the last version supporting python-cloufiles.
 
 2013-06-12 Juan Martinez <juan@memset.com>
 
