@@ -21,7 +21,7 @@ Requirements:
 
 - python (2.6)
 - paramiko (1.7.6+; 1.10.1 recommended)
-- python-swiftclient (1.2+)
+- python-swiftclient (1.6+)
 - python-daemon (1.5.5)
 - ftp-cloudfs (0.23+)
 - python-memcached (1.45)
@@ -89,8 +89,8 @@ By default Swift auth 1.0 will be used, and is compatible with OpenStack
 Object Storage (Swift) using swauth authentication middleware.
 
 Optionally OpenStack Identity Service 2.0 (*aka* keystone) can be used. Currently
-python-keystoneclient is required to use auth 2.0 and it can be enabled with
-*--keystone-auth* option. Please check the example configuration file for
+python-keystoneclient (0.3.2+) is required to use auth 2.0 and it can be enabled
+with *--keystone-auth* option. Please check the example configuration file for
 further details.
 
 
