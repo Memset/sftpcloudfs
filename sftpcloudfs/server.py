@@ -27,6 +27,7 @@ THE SOFTWARE.
 import logging
 
 import os
+import shlex
 from SocketServer import StreamRequestHandler, ForkingTCPServer
 
 import paramiko
@@ -35,6 +36,8 @@ from Crypto import Random
 from ftpcloudfs.fs import ObjectStorageFS
 from ftpcloudfs.utils import smart_str
 from functools import wraps
+
+import scp
 
 from posixpath import basename
 
@@ -254,6 +257,21 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
         # sftp subsystem because of the set_subsystem_handler call in
         # the ObjectStorageSFTPRequestHandler
         return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
+
+    def check_channel_exec_request(self, channel, command):
+        command = shlex.split(command)
+        self.log.debug('check_channel_exec_request %r', command)
+
+        try:
+            if command[0] == 'scp':
+                self.log.info('invoking %r', command)
+                scp.SCPHandler(command[1:], channel, self.fs, self.log)
+            return True
+        except:
+            self.log.exception("command \"%r\" failed", command)
+            return False
+
+        return False
 
     def check_auth_none(self, username):
         """Check whether the user can proceed without authentication."""
