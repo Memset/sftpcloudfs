@@ -64,6 +64,7 @@ class SCPHandler(object):
             else:
                 raise SCPException(4, "Missing -t or -f argument")
         except SCPException, ex:
+            self.log.info("SCP reject: %s", ex)
             self.channel.sendall('\001scp: ')
             self.channel.sendall(str(ex))
             self.channel.sendall('\n')
@@ -94,7 +95,7 @@ class SCPHandler(object):
                 if '\n' in chunk:
                     break
 
-        line, self.buffer = self.buffer.split('\n')
+        line, self.buffer = self.buffer.split('\n', 1)
         return line
 
     def receive(self):
