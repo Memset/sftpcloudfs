@@ -1,35 +1,12 @@
 import stat
 import threading
 
-import argparse
+import optparse
 import posixpath
 
-arg_parser = argparse.ArgumentParser(
-    prog='scp',
-    description='Remote part of secure copy tool'
-)
-arg_parser.add_argument('-verbose', '-v', action='count',
-                        help='makes SCP verbose')
-group = arg_parser.add_mutually_exclusive_group(required=True)
-group.add_argument('--copy_to', '-t', action='store_true')
-group.add_argument('--copy_from', '-f', action='store_true')
-arg_parser.add_argument('--recursive', '-r', action='store_true',
-                        help='Recursively copy entire directories.')
-arg_parser.add_argument('--preserve', '-p', action='store_true',
-                        help='Preserves modification times, access '
-                             'times, and modes from the original file.')
-arg_parser.add_argument('--directory', '-d', action='store_true',
-                        help='Target should be a directory')
-arg_parser.add_argument('--xargs', '-E', action='store_true',
-                        help='Target should be a directory')
-arg_parser.add_argument('path', help='the path to process')
+#arg_parser.add_option('path', help='the path to process')
 
 
-def ap_exit(status, message):
-    raise SCPException(status, message)
-
-arg_parser.exit = ap_exit
-arg_parser.error = lambda msg: ap_exit(2, msg)
 
 
 class SCPException(Exception):
@@ -49,15 +26,52 @@ class SCPHandler(object):
 
         threading.Thread(target=self.main).start()
 
+    @classmethod
+    def get_argparser(cls):
+        try:
+            return cls.arg_parser
+        except AttributeError:
+            cls.arg_parser = parser = optparse.OptionParser(
+                prog='scp',
+                description='Remote part of secure copy tool'
+            )
+            parser.add_option('-v', action='count', dest='verbose',
+                              help='makes SCP verbose')
+            parser.add_option('-t', action='store_true', dest='copy_to')
+            parser.add_option('-f', action='store_true', dest='copy_from')
+            parser.add_option('-r', action='store_true', dest='recursive',
+                              help='Recursively copy entire directories.')
+            parser.add_option('-p', action='store_true', dest='preserve',
+                              help='Preserves modification times, access '
+                                   'times, and modes from the original file.')
+            parser.add_option('-d', action='store_true', dest='directory',
+                              help='Target should be a directory')
+            parser.add_option('-E', action='store_true', dest='xargs',
+                              help='Target should be a directory')
+
+            def ap_exit(status, message):
+                raise SCPException(status, message)
+
+            parser.exit = ap_exit
+            parser.error = lambda msg: ap_exit(2, msg)
+
+            return parser
+
     def main(self):
         try:
-            self.args = arg_parser.parse_args(self.args)
+            self.args, self.paths = self.get_argparser().parse_args(self.args)
             self.log.debug("SCP %r", self.args)
+
+            if self.args.copy_to and self.args.copy_from:
+                raise SCPException(4, "-t and -f cannot be combined")
+
+            if len(self.paths) != 1:
+                raise SCPException(4, "scp takes exacly one path")
 
             if self.args.copy_to:
                 self.receive()
             elif self.args.copy_from:
-                path = self.args.path
+                path = self.paths[0]
                 path_stat = self.fs.stat(path)
 
                 self.send(path, path_stat)
@@ -103,10 +117,10 @@ class SCPHandler(object):
         self.channel.send('\000')
 
         if self.args.directory:
-            directory = self.args.path
+            directory = self.paths[0]
             filename = None
         else:
-            directory, filename = posixpath.split(self.args.path)
+            directory, filename = posixpath.split(self.paths[0])
 
         if not self.fs.isdir(directory):
             raise SCPException(1, '%s is not a directory' % directory)
