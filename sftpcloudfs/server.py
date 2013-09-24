@@ -37,7 +37,7 @@ from ftpcloudfs.fs import ObjectStorageFS
 from ftpcloudfs.utils import smart_str
 from functools import wraps
 
-import scp
+from scp import SCPHandler
 
 from posixpath import basename
 
@@ -231,6 +231,14 @@ class ObjectStorageSFTPRequestHandler(StreamRequestHandler):
             self.log.warning("Channel is None, closing")
             t.close()
             return
+
+        # Execute the command, scheduled by check_channel_exec_request
+        # for SFTP connections, there is no command to execute so this does
+        # nothing.
+        command_handler = getattr(chan, 'command_handler', None)
+        if command_handler:
+            command_handler.main()
+
         while t.isAlive():
             t.join(timeout=10)
 
@@ -259,14 +267,20 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
         return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 
     def check_channel_exec_request(self, channel, command):
+        """ Determine if a shell command will be executed for the client.  """
+
+        # Parse the command
         command = shlex.split(command)
         self.log.debug('check_channel_exec_request %r', command)
 
         try:
             if command[0] == 'scp':
                 self.log.info('invoking %r', command)
-                scp.SCPHandler(command[1:], channel, self.fs, self.log)
-            return True
+
+                # Schedule the command for execution
+                channel.command_handler = SCPHandler(command[1:], channel,
+                                                     self.fs, self.log)
+                return True
         except:
             self.log.exception("command \"%r\" failed", command)
             return False

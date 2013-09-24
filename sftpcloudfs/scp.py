@@ -1,12 +1,6 @@
 import stat
-import threading
-
 import optparse
 import posixpath
-
-#arg_parser.add_option('path', help='the path to process')
-
-
 
 
 class SCPException(Exception):
@@ -23,8 +17,6 @@ class SCPHandler(object):
         self.fs = fs
         self.args = arguments
         self.buffer = ""
-
-        threading.Thread(target=self.main).start()
 
     @classmethod
     def get_argparser(cls):
@@ -49,7 +41,7 @@ class SCPHandler(object):
             parser.add_option('-E', action='store_true', dest='xargs',
                               help='Target should be a directory')
 
-            def ap_exit(status, message):
+            def ap_exit(status=0, message=""):
                 raise SCPException(status, message)
 
             parser.exit = ap_exit
@@ -79,14 +71,14 @@ class SCPHandler(object):
                 raise SCPException(4, "Missing -t or -f argument")
         except SCPException, ex:
             self.log.info("SCP reject: %s", ex)
-            self.channel.sendall('\001scp: ')
+            self.channel.sendall('\x01scp: ')
             self.channel.sendall(str(ex))
             self.channel.sendall('\n')
             self.channel.send_exit_status(ex.status)
             self.channel.close()
         except:
             self.log.exception("SCP interal exception")
-            self.channel.sendall('\001scp: internal error\n')
+            self.channel.sendall('\x01scp: internal error\n')
             self.channel.send_exit_status(1)
             self.channel.close()
         else:
@@ -114,7 +106,7 @@ class SCPHandler(object):
 
     def receive(self):
         # Ack the connection
-        self.channel.send('\000')
+        self.channel.send('\x00')
 
         if self.args.directory:
             directory = self.paths[0]
@@ -139,7 +131,7 @@ class SCPHandler(object):
             # atime = float(atime) + float(atime_u) / 100000
 
             # ACK this file record
-            self.channel.send('\000')
+            self.channel.send('\x00')
             record = self.recv_line()
 
         if record[0] == 'C':
@@ -151,7 +143,7 @@ class SCPHandler(object):
                 raise SCPException(1, '%s: directory exists' % tgt_path)
 
             # ACK this file record
-            self.channel.send('\000')
+            self.channel.send('\x00')
 
             fd = self.fs.open(tgt_path, 'w')
 
@@ -163,7 +155,7 @@ class SCPHandler(object):
 
             fd.close()
             # ACK sending this file
-            self.channel.send('\000')
+            self.channel.send('\x00')
             #self.wait_for_ack()
 
         elif record[0] == 'D':
@@ -175,7 +167,7 @@ class SCPHandler(object):
                 raise SCPException(1, '%s: file exists', tgt_path)
 
             # ACK this directory record
-            self.channel.send('\000')
+            self.channel.send('\x00')
 
             self.fs.mkdir(tgt_path)
 
@@ -183,7 +175,7 @@ class SCPHandler(object):
                 record = self.recv_line()
                 if record[0] == 'E':
                     # ACK this file record
-                    self.channel.send('\000')
+                    self.channel.send('\x00')
                     break
                 else:
                     self.receive_inner(tgt_path, record)
@@ -213,7 +205,7 @@ class SCPHandler(object):
                     break
 
             # signal the end of the transfer
-            self.channel.send('\000')
+            self.channel.send('\x00')
             self.wait_for_ack()
 
         elif not self.args.recursive:
