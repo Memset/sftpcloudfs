@@ -24,34 +24,31 @@ class SCPHandler(object):
 
     @classmethod
     def get_argparser(cls):
-        try:
-            return cls.arg_parser
-        except AttributeError:
-            cls.arg_parser = parser = optparse.OptionParser(
-                prog='scp',
-                description='Remote part of secure copy tool'
-            )
-            parser.add_option('-v', action='count', dest='verbose',
-                              help='makes SCP verbose')
-            parser.add_option('-t', action='store_true', dest='copy_to')
-            parser.add_option('-f', action='store_true', dest='copy_from')
-            parser.add_option('-r', action='store_true', dest='recursive',
-                              help='Recursively copy entire directories.')
-            parser.add_option('-p', action='store_true', dest='preserve',
-                              help='Preserves modification times, access '
-                                   'times, and modes from the original file.')
-            parser.add_option('-d', action='store_true', dest='directory',
-                              help='Target should be a directory')
-            parser.add_option('-E', action='store_true', dest='xargs',
-                              help='Target should be a directory')
+        parser = optparse.OptionParser(
+            prog='scp',
+            description='Remote part of secure copy tool'
+        )
+        parser.add_option('-v', action='count', dest='verbose',
+                          help='makes SCP verbose')
+        parser.add_option('-t', action='store_true', dest='copy_to')
+        parser.add_option('-f', action='store_true', dest='copy_from')
+        parser.add_option('-r', action='store_true', dest='recursive',
+                          help='Recursively copy entire directories.')
+        parser.add_option('-p', action='store_true', dest='preserve',
+                          help='Preserves modification times, access '
+                               'times, and modes from the original file.')
+        parser.add_option('-d', action='store_true', dest='directory',
+                          help='Target should be a directory')
+        parser.add_option('-E', action='store_true', dest='xargs',
+                          help='Target should be a directory')
 
-            def ap_exit(status=0, message=""):
-                raise SCPException(status, message)
+        def ap_exit(status=0, message=""):
+            raise SCPException(status, message)
 
-            parser.exit = ap_exit
-            parser.error = lambda msg: ap_exit(2, msg)
+        parser.exit = ap_exit
+        parser.error = lambda msg: ap_exit(2, msg)
 
-            return parser
+        return parser
 
     def main(self):
         try:
