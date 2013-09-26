@@ -97,9 +97,13 @@ class SCPHandler(threading.Thread):
                 self.channel.sendall(str(msg))
                 self.channel.sendall('\n')
             self.channel.send_exit_status(status)
-            self.channel.close()
         except socket.error, ex:
             self.log.warn("Failed to properly close the channel: %r" % ex.message)
+        finally:
+            try:
+                self.channel.close()
+            except socket.error:
+                pass
 
     def recv(self, size):
         if self.buffer:
