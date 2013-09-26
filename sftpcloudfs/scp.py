@@ -11,6 +11,8 @@ class SCPException(Exception):
 
 class SCPHandler(object):
 
+    CHUNK_SIZE = 64*1024
+
     def __init__(self, arguments, channel, fs, log):
         self.log = log
         self.channel = channel
@@ -149,7 +151,7 @@ class SCPHandler(object):
 
             bytes_sent = 0
             while bytes_sent < size:
-                chunk = self.recv(64*1024)
+                chunk = self.recv(self.CHUNK_SIZE)
                 fd.write(chunk)
                 bytes_sent += len(chunk)
 
@@ -198,7 +200,7 @@ class SCPHandler(object):
 
             fd = self.fs.open(path, 'r')
             while True:
-                chunk = fd.read(64*1024)  # Fixme: magic number
+                chunk = fd.read(self.CHUNK_SIZE)
                 if chunk:
                     self.channel.sendall(chunk)
                 else:
