@@ -142,15 +142,15 @@ class SCPHandler(object):
                 size = int(size)
             except ValueError:
                 raise SCPException(1, 'invalid size')
-            tgt_path = path + '/' + (override_name or name)
+            target_path = path + '/' + (override_name or name)
 
-            if self.fs.isdir(tgt_path):
-                raise SCPException(1, '%s: directory exists' % tgt_path)
+            if self.fs.isdir(target_path):
+                raise SCPException(1, '%s: directory exists' % target_path)
 
             # ACK this file record
             self.channel.send('\x00')
 
-            fd = self.fs.open(tgt_path, 'w')
+            fd = self.fs.open(target_path, 'w')
 
             bytes_sent = 0
             while bytes_sent < size:
@@ -166,15 +166,15 @@ class SCPHandler(object):
         elif record[0] == 'D':
             mode, size, name = record[1:].split()
 
-            tgt_path = path + '/' + (override_name or name)
+            target_path = path + '/' + (override_name or name)
 
-            if self.fs.isfile(tgt_path):
-                raise SCPException(1, '%s: file exists', tgt_path)
+            if self.fs.isfile(target_path):
+                raise SCPException(1, '%s: file exists', target_path)
 
             # ACK this directory record
             self.channel.send('\x00')
 
-            self.fs.mkdir(tgt_path)
+            self.fs.mkdir(target_path)
 
             while True:
                 record = self.recv_line()
@@ -183,7 +183,7 @@ class SCPHandler(object):
                     self.channel.send('\x00')
                     break
                 else:
-                    self.receive_inner(tgt_path, record)
+                    self.receive_inner(target_path, record)
 
     def send(self, path, path_stat):
         self.log.debug('About to send %s', path)
