@@ -14,10 +14,12 @@ class SCPException(Exception):
 class SCPHandler(object):
 
     CHUNK_SIZE = 64*1024
+    TIMEOUT = 30.0 # seconds
 
     def __init__(self, arguments, channel, fs, log):
         self.log = log
         self.channel = channel
+        self.channel.settimeout(self.TIMEOUT)
         self.fs = fs
         self.args = arguments
         self.buffer = ""
@@ -77,6 +79,9 @@ class SCPHandler(object):
         except SCPException, ex:
             self.log.info("SCP reject: %s", ex)
             self.send_status_and_close(msg=ex, status=ex.status)
+        except socket.timeout:
+            self.log.info("SCP timeout")
+            self.send_status_and_close(msg="%ss timeout" % self.TIMEOUT, status=1)
         except:
             self.log.exception("SCP internal exception")
             self.send_status_and_close(msg="internal error", status=1)
