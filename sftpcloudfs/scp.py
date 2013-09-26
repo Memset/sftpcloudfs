@@ -140,7 +140,7 @@ class SCPHandler(object):
             self.channel.send('\x00')
             record = self.recv_line()
 
-        if record[0] == 'C':
+        elif record[0] == 'C':
             mode, size, name = record[1:].split()
             try:
                 size = int(size)
