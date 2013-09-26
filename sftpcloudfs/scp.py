@@ -55,10 +55,10 @@ class SCPHandler(object):
             self.log.debug("SCP %r", self.args)
 
             if self.args.copy_to and self.args.copy_from:
-                raise SCPException(4, "-t and -f cannot be combined")
+                raise SCPException(4, "-t and -f can't be combined")
 
             if len(self.paths) != 1:
-                raise SCPException(4, "scp takes exacly one path")
+                raise SCPException(4, "scp takes exactly one path")
 
             if self.args.copy_to:
                 self.receive()
@@ -77,7 +77,7 @@ class SCPHandler(object):
             self.channel.send_exit_status(ex.status)
             self.channel.close()
         except:
-            self.log.exception("SCP interal exception")
+            self.log.exception("SCP internal exception")
             self.channel.sendall('\x01scp: internal error\n')
             self.channel.send_exit_status(1)
             self.channel.close()
@@ -230,4 +230,5 @@ class SCPHandler(object):
         """ Wait for the ack byte """
         ack = self.channel.recv(1)
         if ack != '\x00':
-            raise Exception("Command not acked (%r)" % ack)
+            raise Exception("Command not acknowledged (%r)" % ack)
+
