@@ -76,7 +76,7 @@ class SCPHandler(object):
             self.send_status_and_close(msg=ex, status=ex.status)
         except:
             self.log.exception("SCP internal exception")
-            self.senf_status_and_close(msg="internal error", status=1)
+            self.send_status_and_close(msg="internal error", status=1)
         else:
             self.send_status_and_close()
 
