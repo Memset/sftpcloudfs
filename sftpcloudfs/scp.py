@@ -55,7 +55,7 @@ class SCPHandler(object):
 
     def main(self):
         try:
-            self.args, self.paths = self.get_argparser().parse_args(self.args)
+            self.args, self.paths = SCPHandler.get_argparser().parse_args(self.args)
             self.log.debug("SCP %r", self.args)
 
             if self.args.copy_to and self.args.copy_from:
