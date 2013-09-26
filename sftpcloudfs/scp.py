@@ -34,6 +34,7 @@ class SCPHandler(object):
         parser.add_option('-f', action='store_true', dest='copy_from')
         parser.add_option('-r', action='store_true', dest='recursive',
                           help='Recursively copy entire directories.')
+        # unused
         parser.add_option('-p', action='store_true', dest='preserve',
                           help='Preserves modification times, access '
                                'times, and modes from the original file.')
