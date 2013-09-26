@@ -269,6 +269,10 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
         """ Determine if a shell command will be executed for the client.  """
 
         # Parse the command
+        if ' -- ' in command:
+            # scp will use -- to delimit the begining of the unscaped filename
+            # so translate it to something that shelex can manage
+            command = command.replace(' -- ', ' "') + '"'
         command = shlex.split(command)
         self.log.debug('check_channel_exec_request %r', command)
 

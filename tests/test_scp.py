@@ -64,7 +64,7 @@ class SftpcloudfsTest(unittest.TestCase):
         self.assertEquals(ack, "\000")
 
 
-        self.channel.sendall("C0644 6 test\n")
+        self.channel.sendall("C0644 6 foo\n")
         ack = self.channel.recv(1)
         self.assertEquals(ack, "\000")
         self.channel.sendall("Hello\n")
@@ -193,7 +193,7 @@ class SftpcloudfsTest(unittest.TestCase):
         ack = self.channel.recv(1)
         self.assertEquals(ack, "\000")
 
-        self.channel.sendall("C0644 not_an_integer test\n")
+        self.channel.sendall("C0644 not_an_integer foo\n")
         # shouldn't raise and exception on the server
         # FIXME: test that it doesn't happen!
 
@@ -249,6 +249,29 @@ class SftpcloudfsTest(unittest.TestCase):
         self.assertEquals(tail, '')
 
         headers, content = self.conn.get_object(self.container, u'Smiley\u263a dir/test')
+        self.assertEquals(content, 'Hello\n')
+
+    def test_file_upload_like_scp(self):
+        self.channel.exec_command('scp -t  -- /%s/file with spaces.txt' % self.container)
+
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        self.channel.sendall(u"C0644 6 file with spaces.txt\n")
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+        self.channel.sendall("Hello\n")
+
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        exit_status = self.channel.recv_exit_status()
+        self.assertEquals(exit_status, 0)
+
+        tail = self.channel.recv(1)
+        self.assertEquals(tail, '')
+
+        headers, content = self.conn.get_object(self.container, 'file with spaces.txt')
         self.assertEquals(content, 'Hello\n')
 
     def tearDown(self):
