@@ -1,12 +1,9 @@
 #!/usr/bin/python
 import unittest
 import os
-import subprocess
 import sys
-from time import time
 from swiftclient import client
 import paramiko
-import stat
 
 hostname = "127.0.0.1"
 port = 8022
