@@ -180,6 +180,16 @@ class SftpcloudfsTest(unittest.TestCase):
         tail = self.channel.recv(1)
         self.assertEquals(tail, '')
 
+    def test_file_upload_invalid_size(self):
+        self.channel.exec_command('scp -t /%s/foo' % self.container)
+
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        self.channel.sendall("C0644 not_an_integer test\n")
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\001")
+
     def tearDown(self):
         self.channel.close()
         self.transport.close()

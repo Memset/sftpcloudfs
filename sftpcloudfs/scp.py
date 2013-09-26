@@ -138,7 +138,10 @@ class SCPHandler(object):
 
         if record[0] == 'C':
             mode, size, name = record[1:].split()
-            size = int(size)
+            try:
+                size = int(size)
+            except ValueError:
+                raise SCPException(1, 'invalid size')
             tgt_path = path + '/' + (override_name or name)
 
             if self.fs.isdir(tgt_path):
