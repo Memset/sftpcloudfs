@@ -3,6 +3,8 @@ import optparse
 import posixpath
 import socket
 
+from ftpcloudfs.fs import IOSError
+
 class SCPException(Exception):
     def __init__(self, status, message):
         self.status = status
@@ -66,7 +68,10 @@ class SCPHandler(object):
                 self.receive()
             elif self.args.copy_from:
                 path = self.paths[0]
-                path_stat = self.fs.stat(path)
+                try:
+                    path_stat = self.fs.stat(path)
+                except IOSError, ex:
+                    raise SCPException(1, ex)
 
                 self.send(path, path_stat)
             else:
