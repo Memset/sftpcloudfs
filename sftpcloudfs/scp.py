@@ -141,7 +141,7 @@ class SCPHandler(object):
             record = self.recv_line()
 
         elif record[0] == 'C':
-            mode, size, name = record[1:].split()
+            mode, size, name = record[1:].split(' ', 2)
             try:
                 size = int(size)
             except ValueError:
@@ -168,7 +168,7 @@ class SCPHandler(object):
             #self.wait_for_ack()
 
         elif record[0] == 'D':
-            mode, size, name = record[1:].split()
+            mode, size, name = record[1:].split(' ', 2)
 
             target_path = path + '/' + (override_name or name)
 

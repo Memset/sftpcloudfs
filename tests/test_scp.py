@@ -200,6 +200,60 @@ class SftpcloudfsTest(unittest.TestCase):
         # shouldn't raise and exception on the server
         # FIXME: test that it doesn't happen!
 
+    def test_file_upload_unicode(self):
+        self.channel.exec_command(u'scp -t /%s/Smiley\u263a\ file'.encode("utf-8") % self.container)
+
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        self.channel.sendall(u"C0644 6 Smiley\u263a file\n".encode("utf-8"))
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+        self.channel.sendall("Hello\n")
+
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        exit_status = self.channel.recv_exit_status()
+        self.assertEquals(exit_status, 0)
+
+        tail = self.channel.recv(1)
+        self.assertEquals(tail, '')
+
+        headers, content = self.conn.get_object(self.container, u'Smiley\u263a file')
+        self.assertEquals(content, 'Hello\n')
+
+    def test_dir_upload_unicode(self):
+        self.channel.exec_command(u'scp -tr /%s/Smiley\u263a\ dir'.encode("utf-8") % self.container)
+
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        self.channel.sendall(u"D0644 6 Smiley\u263a dir\n".encode("utf-8"))
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        self.channel.sendall("C0644 6 test\n")
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        self.channel.sendall("Hello\n")
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        self.channel.sendall("E\n")
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        exit_status = self.channel.recv_exit_status()
+        self.assertEquals(exit_status, 0)
+
+        tail = self.channel.recv(1)
+        self.assertEquals(tail, '')
+
+        headers, content = self.conn.get_object(self.container, u'Smiley\u263a dir/test')
+        self.assertEquals(content, 'Hello\n')
+
     def tearDown(self):
         self.channel.close()
         self.transport.close()
