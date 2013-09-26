@@ -231,13 +231,6 @@ class ObjectStorageSFTPRequestHandler(StreamRequestHandler):
             t.close()
             return
 
-        # Execute the command, scheduled by check_channel_exec_request
-        # for SFTP connections, there is no command to execute so this does
-        # nothing.
-        command_handler = getattr(chan, 'command_handler', None)
-        if command_handler:
-            command_handler.main()
-
         while t.isAlive():
             t.join(timeout=10)
 
@@ -279,9 +272,8 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
         try:
             if command[0] == 'scp':
                 self.log.info('invoking %r', command)
-
-                # Schedule the command for execution
-                channel.command_handler = SCPHandler(command[1:], channel, self.fs, self.log)
+                # handle the command execution
+                SCPHandler(command[1:], channel, self.fs, self.log).start()
                 return True
         except:
             self.log.exception("command \"%r\" failed", command)

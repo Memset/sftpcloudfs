@@ -2,6 +2,7 @@ import stat
 import optparse
 import posixpath
 import socket
+import threading
 
 from ftpcloudfs.fs import IOSError
 
@@ -11,12 +12,13 @@ class SCPException(Exception):
         super(Exception, self).__init__(message)
 
 
-class SCPHandler(object):
+class SCPHandler(threading.Thread):
 
     CHUNK_SIZE = 64*1024
     TIMEOUT = 30.0 # seconds
 
     def __init__(self, arguments, channel, fs, log):
+        super(SCPHandler, self).__init__()
         self.log = log
         self.channel = channel
         self.channel.settimeout(self.TIMEOUT)
@@ -53,7 +55,7 @@ class SCPHandler(object):
 
         return parser
 
-    def main(self):
+    def run(self):
         try:
             self.args, self.paths = SCPHandler.get_argparser().parse_args(self.args)
             self.log.debug("SCP %r", self.args)
