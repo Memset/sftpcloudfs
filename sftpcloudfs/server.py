@@ -35,10 +35,9 @@ from Crypto import Random
 
 from ftpcloudfs.fs import ObjectStorageFS
 from ftpcloudfs.utils import smart_str
+from sftpcloudfs.scp import SCPHandler
+
 from functools import wraps
-
-from scp import SCPHandler
-
 from posixpath import basename
 
 def return_sftp_errors(func):
@@ -278,8 +277,7 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
                 self.log.info('invoking %r', command)
 
                 # Schedule the command for execution
-                channel.command_handler = SCPHandler(command[1:], channel,
-                                                     self.fs, self.log)
+                channel.command_handler = SCPHandler(command[1:], channel, self.fs, self.log)
                 return True
         except:
             self.log.exception("command \"%r\" failed", command)
