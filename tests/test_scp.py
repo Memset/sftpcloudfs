@@ -190,6 +190,16 @@ class SftpcloudfsTest(unittest.TestCase):
         ack = self.channel.recv(1)
         self.assertEquals(ack, "\001")
 
+    def test_file_upload_error_disconnect(self):
+        self.channel.exec_command('scp -t /%s/foo' % self.container)
+
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        self.channel.sendall("C0644 not_an_integer test\n")
+        # shouldn't raise and exception on the server
+        # FIXME: test that it doesn't happen!
+
     def tearDown(self):
         self.channel.close()
         self.transport.close()

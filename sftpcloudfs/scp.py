@@ -1,7 +1,7 @@
 import stat
 import optparse
 import posixpath
-
+import socket
 
 class SCPException(Exception):
     def __init__(self, status, message):
@@ -73,19 +73,23 @@ class SCPHandler(object):
                 raise SCPException(4, "Missing -t or -f argument")
         except SCPException, ex:
             self.log.info("SCP reject: %s", ex)
-            self.channel.sendall('\x01scp: ')
-            self.channel.sendall(str(ex))
-            self.channel.sendall('\n')
-            self.channel.send_exit_status(ex.status)
-            self.channel.close()
+            self.send_status_and_close(msg=ex, status=ex.status)
         except:
             self.log.exception("SCP internal exception")
-            self.channel.sendall('\x01scp: internal error\n')
-            self.channel.send_exit_status(1)
-            self.channel.close()
+            self.senf_status_and_close(msg="internal error", status=1)
         else:
-            self.channel.send_exit_status(0)
+            self.send_status_and_close()
+
+    def send_status_and_close(self, msg=None, status=0):
+        try:
+            if msg:
+                self.channel.sendall('\x01scp: ')
+                self.channel.sendall(str(msg))
+                self.channel.sendall('\n')
+            self.channel.send_exit_status(status)
             self.channel.close()
+        except socket.error, ex:
+            self.log.warn("Failed to properly close the channel: %r" % ex.message)
 
     def recv(self, size):
         if self.buffer:
