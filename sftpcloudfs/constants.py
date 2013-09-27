@@ -1,5 +1,5 @@
-version = "0.9"
-project_url = "https://github.com/memset/sftpcloudfs"
+version = "0.10"
+project_url = "https://pypi.python.org/pypi/sftp-cloudfs/"
 config_file = "/etc/sftpcloudfs.conf"
 
 # keystone defaults

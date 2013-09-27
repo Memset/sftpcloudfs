@@ -13,6 +13,8 @@ The communication between the client and the SFTP daemon is encrypted
 all the time, and the SFTP service supports HTTPS communication with
 the remote files/storage service.
 
+There's limited SCP support since 0.10.
+
 
 Install
 -------
@@ -62,6 +64,7 @@ that supports following options:
     -l LOG_FILE, --log-file=LOG_FILE
                           Log into provided file
     -f, --foreground      Run in the foreground (don't detach from terminal)
+    --disable-scp         Disable SCP support (default: enabled)
     --syslog              Enable logging to system logger (daemon facility)
     -v, --verbose         Show detailed information on logging
     --pid-file=PID_FILE   Pid file location when in daemon mode
