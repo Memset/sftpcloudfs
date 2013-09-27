@@ -240,12 +240,13 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
     """
     allow_reuse_address = True
 
-    def __init__(self, address, host_key=None, authurl=None, max_children=20, keystone=None):
+    def __init__(self, address, host_key=None, authurl=None, max_children=20, keystone=None, no_scp=False):
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start server" % self.__class__.__name__)
         self.fs = ObjectStorageFS(None, None, authurl=authurl, keystone=keystone) # unauthorized
         self.host_key = host_key
         self.max_children = max_children
+        self.no_scp = no_scp
         ForkingTCPServer.__init__(self, address, ObjectStorageSFTPRequestHandler)
 
     def check_channel_request(self, kind, chanid):
@@ -259,7 +260,7 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
         return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 
     def check_channel_exec_request(self, channel, command):
-        """ Determine if a shell command will be executed for the client.  """
+        """Determine if a shell command will be executed for the client."""
 
         # Parse the command
         if ' -- ' in command:
@@ -267,16 +268,19 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
             # so translate it to something that shelex can manage
             command = command.replace(' -- ', ' "') + '"'
         command = shlex.split(command)
-        self.log.debug('check_channel_exec_request %r', command)
+        self.log.debug('check_channel_exec_request %r' % command)
 
         try:
             if command[0] == 'scp':
-                self.log.info('invoking %r', command)
+                if self.no_scp:
+                    self.log.info("scp exec request denied from=%s (scp is disabled)" % (self.client_address,))
+                    return False
+                self.log.info('invoking %r from=%s' % (command, self.client_address))
                 # handle the command execution
                 SCPHandler(command[1:], channel, self.fs, self.log).start()
                 return True
         except:
-            self.log.exception("command \"%r\" failed", command)
+            self.log.exception("command %r failed from=%s" % (command, self.client_address))
             return False
 
         return False

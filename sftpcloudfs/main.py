@@ -115,6 +115,7 @@ class Main(object):
                                   'log-file': None,
                                   'syslog': 'no',
                                   'verbose': 'no',
+                                  'scp-support': 'yes',
                                   'pid-file': None,
                                   'uid': None,
                                   'gid': None,
@@ -174,6 +175,11 @@ class Main(object):
                           action="store_true",
                           default=False,
                           help="Run in the foreground (don't detach from terminal)")
+
+        parser.add_option("--disable-scp", dest="no_scp",
+                          action="store_true",
+                          default=not config.getboolean('sftpcloudfs', 'scp-support'),
+                          help="Disable SCP support (default: enabled)")
 
         parser.add_option("--syslog", dest="syslog",
                           action="store_true",
@@ -315,6 +321,7 @@ class Main(object):
                                           authurl=self.options.authurl,
                                           max_children=self.options.max_children,
                                           keystone=self.options.keystone,
+                                          no_scp=self.options.no_scp,
                                           )
 
         dc = daemon.DaemonContext()
