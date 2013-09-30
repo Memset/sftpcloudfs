@@ -160,7 +160,7 @@ class SCPHandler(threading.Thread):
                 size = int(size)
             except ValueError:
                 raise SCPException(1, 'invalid size')
-            target_path = path + '/' + (override_name or name)
+            target_path = path.rstrip('/') + '/' + (override_name or name)
 
             if self.fs.isdir(target_path):
                 raise SCPException(1, '%s: directory exists' % target_path)
@@ -184,7 +184,7 @@ class SCPHandler(threading.Thread):
         elif record[0] == 'D':
             mode, size, name = record[1:].split(' ', 2)
 
-            target_path = path + '/' + (override_name or name)
+            target_path = path.rstrip('/') + '/' + (override_name or name)
 
             if self.fs.isfile(target_path):
                 raise SCPException(1, '%s: file exists', target_path)
