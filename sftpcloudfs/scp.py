@@ -4,7 +4,7 @@ import posixpath
 import socket
 import threading
 
-from ftpcloudfs.fs import IOSError
+from ftpcloudfs.fs import IOSError, parse_fspath
 
 class SCPException(Exception):
     def __init__(self, status, message):
@@ -164,6 +164,10 @@ class SCPHandler(threading.Thread):
 
             if self.fs.isdir(target_path):
                 raise SCPException(1, '%s: directory exists' % target_path)
+
+            # we can't create files on the root, only inside a container
+            if not all(parse_fspath(target_path)):
+                raise SCPException(1, "%s: container required" % target_path)
 
             # ACK this file record
             self.channel.send('\x00')
