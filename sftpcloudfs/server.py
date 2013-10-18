@@ -27,6 +27,7 @@ THE SOFTWARE.
 import logging
 
 import os
+import errno
 import shlex
 from SocketServer import StreamRequestHandler, ForkingTCPServer
 
@@ -44,18 +45,26 @@ def return_sftp_errors(func):
     """
     Decorator to catch EnvironmentError~s and return SFTP error codes instead.
 
-    Other exceptions are not caught.
+    Other exceptions are logged and processed as EIO errors.
     """
     @wraps(func)
-    def wrapper(*args,**kwargs):
+    def wrapper(*args, **kwargs):
         log = paramiko.util.get_logger("paramiko")
         name = getattr(func, "func_name", "unknown")
         try:
             log.debug("%s(%r,%r): enter" % (name, args, kwargs))
-            rc = func(*args,**kwargs)
-        except EnvironmentError, e:
-            log.debug("%s: caught error: %s" % (name, e))
-            rc = paramiko.SFTPServer.convert_errno(e.errno)
+            rc = func(*args, **kwargs)
+        except BaseException, e:
+            obj = args[0]
+            params = args[1:] if len(args) > 1 else ()
+            msg = "%s%r from %r: %s" % (name, params, obj.client_address, e)
+            if isinstance(e, EnvironmentError):
+                log.info(msg)
+                error = e.errno
+            else:
+                log.exception("unexpected error: %s" % msg)
+                error = errno.EIO
+            rc = paramiko.SFTPServer.convert_errno(error)
         log.debug("%s: returns %r" % (name, rc))
         return rc
     return wrapper
@@ -68,6 +77,7 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
 
     def __init__(self, server, fs, *args, **kwargs):
         self.fs = fs
+        self.client_address = server.client_address
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start filesystem interface" % self.__class__.__name__)
         super(SFTPServerInterface,self).__init__(server, *args, **kwargs)
@@ -158,6 +168,10 @@ class SFTPHandle(paramiko.SFTPHandle):
         # FIXME ignores os.O_CREAT, os.O_TRUNC, os.O_EXCL
         self._file = owner.fs.open(path, mode)
         self._tell = 0
+
+    @property
+    def client_address(self):
+        return self.owner.client_address
 
     @return_sftp_errors
     def close(self):
