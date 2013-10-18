@@ -25,7 +25,7 @@ Requirements:
 - paramiko (1.7.6+; 1.10.1 recommended)
 - python-swiftclient (1.6+)
 - python-daemon (1.5.5)
-- ftp-cloudfs (0.23+)
+- ftp-cloudfs (0.24.2+)
 - python-memcached (1.45)
 
 These are the minimum recommended versions based in our testing
@@ -86,7 +86,8 @@ that supports following options:
 
 The default location for the configuration file is /etc/sftpcloudfs.conf.
 
-Memcache is optional but highly recommended for better performance.
+Memcache is optional but highly recommended for better performance. Any Memcache
+server must be secured to prevent unauthorized access to the cached data.
 
 By default Swift auth 1.0 will be used, and is compatible with OpenStack
 Object Storage (Swift) using swauth authentication middleware.
