@@ -1,3 +1,14 @@
+2013-11-15 Juan Martinez <juan@memset.com>
+
+ * release 0.12:
+
+  - Large object support, see 'split-large-files' configuration token.
+    Requires ftp-cloudfs >= 0.25.
+
+  For further info please read:
+    
+  http://docs.openstack.org/developer/swift/overview_large_objects.html
+
 2013-10-18 Juan Martinez <juan@memset.com>
 
  * release 0.11:
