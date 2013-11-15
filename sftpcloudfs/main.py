@@ -111,7 +111,7 @@ class Main(object):
                                   'bind-address': "127.0.0.1",
                                   'port': 8022,
                                   'memcache': None,
-                                  'max-children': 20,
+                                  'max-children': "20",
                                   'log-file': None,
                                   'syslog': 'no',
                                   'verbose': 'no',
@@ -119,7 +119,7 @@ class Main(object):
                                   'pid-file': None,
                                   'uid': None,
                                   'gid': None,
-                                  'split-large-files': '0',
+                                  'split-large-files': "0",
                                   # keystone auth 2.0 support
                                   'keystone-auth': False,
                                   'keystone-region-name': None,
@@ -275,7 +275,10 @@ class Main(object):
         if self.pidfile.is_locked():
             parser.error("pid-file found: %s\nIs the server already running?" % options.pid_file)
 
-        options.max_children = config.get('sftpcloudfs', 'max-children')
+        try:
+            options.max_children = int(config.get('sftpcloudfs', 'max-children'))
+        except ValueError:
+            parser.error('max-children: invalid value, integer expected')
 
         try:
             options.split_size = int(config.get('sftpcloudfs', 'split-large-files'))*10**6
