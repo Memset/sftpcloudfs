@@ -34,7 +34,7 @@ from SocketServer import StreamRequestHandler, ForkingTCPServer
 import paramiko
 from Crypto import Random
 
-from ftpcloudfs.fs import ObjectStorageFS
+from ftpcloudfs.fs import ObjectStorageFS, ObjectStorageFD
 from ftpcloudfs.utils import smart_str
 from sftpcloudfs.scp import SCPHandler
 
@@ -254,7 +254,7 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
     """
     allow_reuse_address = True
 
-    def __init__(self, address, host_key=None, authurl=None, max_children=20, keystone=None, no_scp=False):
+    def __init__(self, address, host_key=None, authurl=None, max_children=20, keystone=None, no_scp=False, split_size=0):
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start server" % self.__class__.__name__)
         self.fs = ObjectStorageFS(None, None, authurl=authurl, keystone=keystone) # unauthorized
@@ -262,6 +262,7 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
         self.max_children = max_children
         self.no_scp = no_scp
         ForkingTCPServer.__init__(self, address, ObjectStorageSFTPRequestHandler)
+        ObjectStorageFD.split_size = split_size
 
     def check_channel_request(self, kind, chanid):
         if kind == 'session':

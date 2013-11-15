@@ -119,6 +119,7 @@ class Main(object):
                                   'pid-file': None,
                                   'uid': None,
                                   'gid': None,
+                                  'split-large-files': '0',
                                   # keystone auth 2.0 support
                                   'keystone-auth': False,
                                   'keystone-region-name': None,
@@ -276,6 +277,11 @@ class Main(object):
 
         options.max_children = config.get('sftpcloudfs', 'max-children')
 
+        try:
+            options.split_size = int(config.get('sftpcloudfs', 'split-large-files'))*10**6
+        except ValueError:
+            parser.error('split-large-files: invalid size, integer expected')
+
         if options.keystone:
             keystone_keys = ('region_name', 'tenant_separator', 'service_type', 'endpoint_type')
             options.keystone = dict((key, getattr(options, key)) for key in keystone_keys)
@@ -322,6 +328,7 @@ class Main(object):
                                           max_children=self.options.max_children,
                                           keystone=self.options.keystone,
                                           no_scp=self.options.no_scp,
+                                          split_size=self.options.split_size,
                                           )
 
         dc = daemon.DaemonContext()
