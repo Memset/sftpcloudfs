@@ -25,7 +25,7 @@ Requirements:
 - paramiko (1.7.6+; 1.10.1 recommended)
 - python-swiftclient (1.6+)
 - python-daemon (1.5.5)
-- ftp-cloudfs (0.24.2+)
+- ftp-cloudfs (0.25+)
 - python-memcached (1.45)
 
 These are the minimum recommended versions based in our testing
@@ -96,6 +96,9 @@ Optionally OpenStack Identity Service 2.0 (*aka* keystone) can be used. Currentl
 python-keystoneclient (0.3.2+) is required to use auth 2.0 and it can be enabled
 with *--keystone-auth* option. Please check the example configuration file for
 further details.
+
+There's large file support with the *split-large-files* configuration token, and
+the server will split files over the specified size in a `.part` subdirectory.
 
 
 License
