@@ -1,5 +1,6 @@
 include COPYING
 include ChangeLog
 include README.md
+include QuickStart.md
 include sftpcloudfs.conf.example
 
