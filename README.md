@@ -94,11 +94,13 @@ Object Storage (Swift) using swauth authentication middleware.
 
 Optionally OpenStack Identity Service 2.0 (*aka* keystone) can be used. Currently
 python-keystoneclient (0.3.2+) is required to use auth 2.0 and it can be enabled
-with *--keystone-auth* option. Please check the example configuration file for
-further details.
+with *--keystone-auth* option. 
 
-There's large file support with the *split-large-files* configuration token, and
-the server will split files over the specified size in a `.part` subdirectory.
+The server supports large files (over the 5GB default) by splitting the files
+in parts into a *.part* subdirectory and using a manifest file to access them as
+a single file.
+
+Please check the example configuration file for further details.
 
 
 License
