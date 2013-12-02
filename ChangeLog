@@ -1,3 +1,15 @@
+2013-12-01 Juan Martinez <juan@memset.com>
+
+ * release 0.12.1:
+
+  - ftp-cloudfs version bumped to 0.25.1.
+
+  0.25.1 fixes an information leak vulnerability in sftp-cloudfs when the
+  shared cache (memcache) is used. Under certain conditions the SFTP server
+  could serve the cached directory listing of a different user.
+  
+  Upgrading ftp-cloudfs is highly recommended.
+
 2013-11-15 Juan Martinez <juan@memset.com>
 
  * release 0.12:
