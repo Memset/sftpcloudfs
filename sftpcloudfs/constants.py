@@ -1,4 +1,4 @@
-version = "0.12.2"
+version = "0.13"
 project_url = "https://pypi.python.org/pypi/sftp-cloudfs/"
 config_file = "/etc/sftpcloudfs.conf"
 

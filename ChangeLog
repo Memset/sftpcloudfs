@@ -1,3 +1,14 @@
+2014-03-20 Juan Martinez <juan@memset.com>
+
+ * release 0.13:
+
+  - ftp-cloudfs version bumped to 0.26.
+
+  - new hide-part-dir configuration token to hide ".part" files from
+    large files support.
+  - ftp-cloudfs 0.26 includes improved large file support (delete, rename)
+  - copyright year bump.
+
 2013-12-01 Juan Martinez <juan@memset.com>
 
  * release 0.12.1, 0.12.2:
