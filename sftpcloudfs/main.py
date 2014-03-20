@@ -120,6 +120,7 @@ class Main(object):
                                   'uid': None,
                                   'gid': None,
                                   'split-large-files': "0",
+                                  'hide-part-dir': "no",
                                   # keystone auth 2.0 support
                                   'keystone-auth': False,
                                   'keystone-region-name': None,
@@ -285,6 +286,8 @@ class Main(object):
         except ValueError:
             parser.error('split-large-files: invalid size, integer expected')
 
+        options.hide_part_dir = config.getboolean('sftpcloudfs', 'hide-part-dir')
+
         if options.keystone:
             keystone_keys = ('region_name', 'tenant_separator', 'service_type', 'endpoint_type')
             options.keystone = dict((key, getattr(options, key)) for key in keystone_keys)
@@ -332,6 +335,7 @@ class Main(object):
                                           keystone=self.options.keystone,
                                           no_scp=self.options.no_scp,
                                           split_size=self.options.split_size,
+                                          hide_part_dir=self.options.hide_part_dir,
                                           )
 
         dc = daemon.DaemonContext()
