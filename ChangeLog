@@ -1,3 +1,9 @@
+2014-04-10 Juan Martinez <juan@memset.com>
+
+ * release 0.13.1:
+
+  - ftp-cloudfs version bumped to 0.26.1 as it fixes a security bug.
+
 2014-03-20 Juan Martinez <juan@memset.com>
 
  * release 0.13:
