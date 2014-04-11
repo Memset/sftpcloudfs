@@ -57,13 +57,13 @@
 # keystone-region-name = (empty)
 
 # Tenant separator to be used with Auth 2.0 (eg. TENANT.USERNAME)
-# keystone-tenant-separator = '.'
+# keystone-tenant-separator = .
 
 # Service type to be used with Auth 2.0.
-# keystone-service-type = 'object-store'
+# keystone-service-type = object-store
 
 # Endpoint type to be used with Auth 2.0.
-# keystone-endpoint-type = 'publicURL'
+# keystone-endpoint-type = publicURL
 
 # EOF
 
