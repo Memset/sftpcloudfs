@@ -112,6 +112,7 @@ class Main(object):
                                   'port': 8022,
                                   'memcache': None,
                                   'max-children': "20",
+                                  'auth-timeout': "60",
                                   'log-file': None,
                                   'syslog': 'no',
                                   'verbose': 'no',
@@ -282,6 +283,11 @@ class Main(object):
             parser.error('max-children: invalid value, integer expected')
 
         try:
+            options.auth_timeout = int(config.get('sftpcloudfs', 'auth-timeout'))
+        except ValueError:
+            parser.error('auth-timeout: invalid value, integer expected')
+
+        try:
             options.split_size = int(config.get('sftpcloudfs', 'split-large-files'))*10**6
         except ValueError:
             parser.error('split-large-files: invalid size, integer expected')
@@ -336,6 +342,7 @@ class Main(object):
                                           no_scp=self.options.no_scp,
                                           split_size=self.options.split_size,
                                           hide_part_dir=self.options.hide_part_dir,
+                                          auth_timeout=self.options.auth_timeout,
                                           )
 
         dc = daemon.DaemonContext()

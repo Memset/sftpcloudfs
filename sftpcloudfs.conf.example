@@ -28,6 +28,9 @@
 # Maximum number of workers.
 # max-children = 20
 
+# Authentication grace time in seconds.
+# auth-timeout = 60
+
 # Large file support.
 # Specify a size in MB to split large files.
 # split-large-files = (empty)
