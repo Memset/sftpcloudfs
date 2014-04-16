@@ -29,6 +29,7 @@ import logging
 import os
 import errno
 import shlex
+import socket
 from SocketServer import StreamRequestHandler, ForkingTCPServer
 
 import paramiko
@@ -235,8 +236,8 @@ class ObjectStorageSFTPRequestHandler(StreamRequestHandler):
         t.set_subsystem_handler("sftp", paramiko.SFTPServer, SFTPServerInterface, self.server.fs)
         try:
             t.start_server(server=self.server)
-        except paramiko.SSHException, e:
-            self.log.warning("Disconnecting: %s" % e)
+        except (paramiko.SSHException, socket.error) as ex:
+            self.log.warning("Disconnecting: %s" % ex)
             t.close()
             return
         chan = t.accept(self.auth_timeout)
