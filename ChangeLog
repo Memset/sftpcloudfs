@@ -1,3 +1,16 @@
+2014-04-17 Juan Martinez <juan@memset.com>
+
+ * release 0.14:
+
+  - New configuration token 'auth-timeout' to make auth time limit
+    configurable (defaults to 60 seconds).
+  - Added optional SSH negotiation time limit, exposed via 'negotiation-timeout'
+    configuration token.
+  - Clarification in sftpcloudfs.conf.example (re: quotes in string tokens).
+
+  New timeout configuration can improve server's behaviour vs SSH brute-force
+  attacks.
+
 2014-04-10 Juan Martinez <juan@memset.com>
 
  * release 0.13.1:
