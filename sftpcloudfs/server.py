@@ -29,7 +29,8 @@ import logging
 import os
 import errno
 import shlex
-import socket
+from time import time
+import threading
 from SocketServer import StreamRequestHandler, ForkingTCPServer
 
 import paramiko
@@ -223,7 +224,9 @@ class ObjectStorageSFTPRequestHandler(StreamRequestHandler):
     """
 
     timeout = 60
-    auth_timeout = None # set by the server
+    # these are set by the server
+    auth_timeout = None
+    negotiation_timeout = 0
 
     def handle(self):
         Random.atfork()
@@ -234,15 +237,28 @@ class ObjectStorageSFTPRequestHandler(StreamRequestHandler):
         t = paramiko.Transport(self.request)
         t.add_server_key(self.server.host_key)
         t.set_subsystem_handler("sftp", paramiko.SFTPServer, SFTPServerInterface, self.server.fs)
-        try:
-            t.start_server(server=self.server)
-        except (paramiko.SSHException, socket.error) as ex:
-            self.log.warning("Disconnecting: %s" % ex)
-            t.close()
-            return
+
+        # asynchronous negotiation with optional time limit; paramiko has a banner timeout already (15 secs)
+        start = time()
+        event = threading.Event()
+        t.start_server(server=self.server, event=event)
+        while True:
+            if event.wait(0.1):
+                if not t.is_active():
+                    ex = t.get_exception() or "Negotiation failed."
+                    self.log.warning("%r, disconnecting: %s" % (self.client_address, ex))
+                    t.close()
+                    return
+                self.log.debug("negotiation was OK")
+                break
+            if self.negotiation_timeout > 0 and time()-start > self.negotiation_timeout:
+                self.log.warning("%r, disconnecting: Negotiation timed out." % (self.client_address,))
+                t.close()
+                return
+
         chan = t.accept(self.auth_timeout)
         if chan is None:
-            self.log.warning("Channel is None, closing")
+            self.log.warning("%r, disconnecting: auth failed, channel is None." % (self.client_address,))
             t.close()
             return
 
@@ -255,7 +271,8 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
     """
     allow_reuse_address = True
 
-    def __init__(self, address, host_key=None, authurl=None, max_children=20, keystone=None, no_scp=False, split_size=0, hide_part_dir=False, auth_timeout=None):
+    def __init__(self, address, host_key=None, authurl=None, max_children=20, keystone=None,
+            no_scp=False, split_size=0, hide_part_dir=False, auth_timeout=None, negotiation_timeout=0):
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start server" % self.__class__.__name__)
         self.fs = ObjectStorageFS(None, None, authurl=authurl, keystone=keystone, hide_part_dir=hide_part_dir) # unauthorized
@@ -263,6 +280,7 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
         self.max_children = max_children
         self.no_scp = no_scp
         ObjectStorageSFTPRequestHandler.auth_timeout = auth_timeout
+        ObjectStorageSFTPRequestHandler.negotiation_timeout = negotiation_timeout
         ForkingTCPServer.__init__(self, address, ObjectStorageSFTPRequestHandler)
         ObjectStorageFD.split_size = split_size
 

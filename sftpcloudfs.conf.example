@@ -1,5 +1,5 @@
 # sftpcloudfs example configuration file
-# 
+#
 # Defaults are shown in the comments.
 # Configuration tokens don't require quotes.
 #
@@ -30,6 +30,9 @@
 
 # Authentication grace time in seconds.
 # auth-timeout = 60
+
+# Negotiation time limit in seconds, 0 to disable.
+# negotiation-timeout = 0
 
 # Large file support.
 # Specify a size in MB to split large files.

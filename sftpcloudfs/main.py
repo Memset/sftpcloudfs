@@ -113,6 +113,7 @@ class Main(object):
                                   'memcache': None,
                                   'max-children': "20",
                                   'auth-timeout': "60",
+                                  'negotiation-timeout': "0",
                                   'log-file': None,
                                   'syslog': 'no',
                                   'verbose': 'no',
@@ -288,6 +289,14 @@ class Main(object):
             parser.error('auth-timeout: invalid value, integer expected')
 
         try:
+            options.negotiation_timeout = int(config.get('sftpcloudfs', 'negotiation-timeout'))
+        except ValueError:
+            parser.error('negotiation-timeout: invalid value, integer expected')
+
+        if options.negotiation_timeout < 0:
+            parser.error('negotiation-timeout: invalid value')
+
+        try:
             options.split_size = int(config.get('sftpcloudfs', 'split-large-files'))*10**6
         except ValueError:
             parser.error('split-large-files: invalid size, integer expected')
@@ -343,6 +352,7 @@ class Main(object):
                                           split_size=self.options.split_size,
                                           hide_part_dir=self.options.hide_part_dir,
                                           auth_timeout=self.options.auth_timeout,
+                                          negotiation_timeout=self.options.negotiation_timeout,
                                           )
 
         dc = daemon.DaemonContext()
