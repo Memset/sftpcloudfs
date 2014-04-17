@@ -288,6 +288,9 @@ class Main(object):
         except ValueError:
             parser.error('auth-timeout: invalid value, integer expected')
 
+        if options.auth_timeout <= 0:
+            parser.error('auth-timeout: invalid value')
+
         try:
             options.negotiation_timeout = int(config.get('sftpcloudfs', 'negotiation-timeout'))
         except ValueError:
