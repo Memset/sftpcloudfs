@@ -241,29 +241,33 @@ class ObjectStorageSFTPRequestHandler(StreamRequestHandler):
         # asynchronous negotiation with optional time limit; paramiko has a banner timeout already (15 secs)
         start = time()
         event = threading.Event()
-        t.start_server(server=self.server, event=event)
-        while True:
-            if event.wait(0.1):
-                if not t.is_active():
-                    ex = t.get_exception() or "Negotiation failed."
-                    self.log.warning("%r, disconnecting: %s" % (self.client_address, ex))
-                    t.close()
+        try:
+            t.start_server(server=self.server, event=event)
+            while True:
+                if event.wait(0.1):
+                    if not t.is_active():
+                        ex = t.get_exception() or "Negotiation failed."
+                        self.log.warning("%r, disconnecting: %s" % (self.client_address, ex))
+                        return
+                    self.log.debug("negotiation was OK")
+                    break
+                if self.negotiation_timeout > 0 and time()-start > self.negotiation_timeout:
+                    self.log.warning("%r, disconnecting: Negotiation timed out." % (self.client_address,))
                     return
-                self.log.debug("negotiation was OK")
-                break
-            if self.negotiation_timeout > 0 and time()-start > self.negotiation_timeout:
-                self.log.warning("%r, disconnecting: Negotiation timed out." % (self.client_address,))
-                t.close()
+
+            chan = t.accept(self.auth_timeout)
+            if chan is None:
+                self.log.warning("%r, disconnecting: auth failed, channel is None." % (self.client_address,))
                 return
 
-        chan = t.accept(self.auth_timeout)
-        if chan is None:
-            self.log.warning("%r, disconnecting: auth failed, channel is None." % (self.client_address,))
+            while t.isAlive():
+                t.join(timeout=10)
+        finally:
+            self.log.info("%r, cleaning up connection: bye." % (self.client_address,))
+            if self.server.fs.conn:
+                self.server.fs.conn.close()
             t.close()
-            return
-
-        while t.isAlive():
-            t.join(timeout=10)
+        return
 
 class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
     """
