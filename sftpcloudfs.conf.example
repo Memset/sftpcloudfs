@@ -9,6 +9,9 @@
 # Authentication URL (eg Memstore, RackSpace Cloud Files, OpenStack)
 # auth-url = (empty)
 
+# Allow to access servers without checking SSL certs
+# insecure = no
+
 # Host RSA key used by the server.
 # host-key-file = (empty)
 

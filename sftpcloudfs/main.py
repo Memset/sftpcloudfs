@@ -107,6 +107,7 @@ class Main(object):
                 config_file = alt_config_file
 
         config = RawConfigParser({'auth-url': None,
+                                  'insecure': False,
                                   'host-key-file': None,
                                   'bind-address': "127.0.0.1",
                                   'port': 8022,
@@ -146,6 +147,11 @@ class Main(object):
         parser.add_option("-a", "--auth-url", dest="authurl",
                           default=config.get('sftpcloudfs', 'auth-url'),
                           help="Authentication URL")
+
+        parser.add_option("--insecure", dest="insecure",
+                          action="store_true",
+                          default=config.get('sftpcloudfs', 'insecure'),
+                          help="Allow to access servers without checking SSL certs")
 
         parser.add_option("-k", "--host-key-file", dest="host_key",
                           default=config.get('sftpcloudfs', 'host-key-file'),
@@ -356,6 +362,7 @@ class Main(object):
                                           hide_part_dir=self.options.hide_part_dir,
                                           auth_timeout=self.options.auth_timeout,
                                           negotiation_timeout=self.options.negotiation_timeout,
+                                          insecure=self.options.insecure,
                                           )
 
         dc = daemon.DaemonContext()
