@@ -1,3 +1,14 @@
+2014-10-06 Juan Martinez <juan@memset.com>
+
+ * release 0.15:
+
+  - Added "insecure" configuration token to support connections to auth
+  servers with invalid SSL certificates.
+
+This release requies ftpcloudfs >= 0.30 and uses swiftclient >= 2.0.0 (and
+requests library). Please test thoroughly before upgrading your production
+systems.
+
 2014-05-15 Juan Martinez <juan@memset.com>
 
  * release 0.14.1:
