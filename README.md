@@ -23,9 +23,9 @@ Requirements:
 
 - python (2.6)
 - paramiko (1.7.6+; 1.10.1 recommended)
-- python-swiftclient (1.6+)
+- python-swiftclient (2.0+)
 - python-daemon (1.5.5)
-- ftp-cloudfs (0.26.1+)
+- ftp-cloudfs (0.30+)
 - python-memcached (1.45)
 
 These are the minimum recommended versions based in our testing
@@ -55,6 +55,7 @@ that supports following options:
     -h, --help            show this help message and exit
     -a AUTHURL, --auth-url=AUTHURL
                           Authentication URL
+    --insecure            Allow to access servers without checking SSL certs
     -k HOST_KEY, --host-key-file=HOST_KEY
                           Host RSA key used by the server
     -b BIND_ADDRESS, --bind-address=BIND_ADDRESS
