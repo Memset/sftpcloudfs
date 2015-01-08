@@ -32,7 +32,6 @@ from logging.handlers import SysLogHandler
 from ConfigParser import RawConfigParser
 from optparse import OptionParser
 import daemon
-import tempfile
 from Crypto import Random
 import paramiko
 from sftpcloudfs.server import ObjectStorageSFTPServer
@@ -205,7 +204,7 @@ class Main(object):
                           type="str",
                           dest="pid_file",
                           default=config.get('sftpcloudfs', 'pid-file'),
-                          help="Pid file location when in daemon mode")
+                          help="Full path to the pid file location")
 
         parser.add_option('--uid',
                           type="int",
@@ -270,9 +269,6 @@ class Main(object):
         except (IOError, paramiko.SSHException), e:
             parser.error("host-key-file: %s" % e)
 
-        if not options.pid_file:
-            options.pid_file = "%s/%s.pid" % (tempfile.gettempdir(), __package__)
-
         if options.memcache:
             ObjectStorageFS.memcache_hosts = options.memcache
             try:
@@ -280,9 +276,12 @@ class Main(object):
             except (ValueError, TypeError):
                 parser.error("memcache: invalid server address, ip:port expected")
 
-        self.pidfile = PIDFile(options.pid_file)
-        if self.pidfile.is_locked():
-            parser.error("pid-file found: %s\nIs the server already running?" % options.pid_file)
+        if options.pid_file:
+            self.pidfile = PIDFile(options.pid_file)
+            if self.pidfile.is_locked():
+                parser.error("pid-file found: %s\nIs the server already running?" % options.pid_file)
+        else:
+            self.pidfile = None
 
         try:
             options.max_children = int(config.get('sftpcloudfs', 'max-children'))
@@ -397,7 +396,7 @@ class Main(object):
                         os.kill(pid, signal.SIGTERM)
                 server.server_close()
 
-        if self.pidfile.i_am_locking():
+        if self.pidfile and self.pidfile.i_am_locking():
             self.pidfile.release()
 
         return 0

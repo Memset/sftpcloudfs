@@ -68,7 +68,7 @@ that supports following options:
     --disable-scp         Disable SCP support (default: enabled)
     --syslog              Enable logging to system logger (daemon facility)
     -v, --verbose         Show detailed information on logging
-    --pid-file=PID_FILE   Pid file location when in daemon mode
+    --pid-file=PID_FILE   Full path to the pid file location
     --uid=UID             UID to drop the privileges to when in daemon mode
     --gid=GID             GID to drop the privileges to when in daemon mode
     --keystone-auth       Use auth 2.0 (Keystone, requires keystoneclient)
