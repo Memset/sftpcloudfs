@@ -53,7 +53,7 @@
 # Show detailed information on logging.
 # verbose = no
 
-# Pid file location when in daemon mode.
+# FUll path to the pid file location.
 # pid-file = (empty)
 
 # UID to drop privileges when in daemon mode.
