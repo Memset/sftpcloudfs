@@ -2,7 +2,7 @@
 """
 Expose a CloudFileFS object over SFTP using paramiko
 
-Copyright (C) 2011-2014 by Memset Ltd. http://www.memset.com/
+Copyright (C) 2011-2015 by Memset Ltd. http://www.memset.com/
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
