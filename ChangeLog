@@ -1,3 +1,13 @@
+2015-01-15 Juan Martinez <juan@memset.com>
+
+ * release 0.16:
+
+  - pid file is now optional and it fixes inconsistent behaviour. It now
+  will be used be used both in daemon and foreground mode as long as it
+  is specified either in the CLI or in the configuration file.
+
+  Thanks to Koert van der Veer for his report.
+
 2014-10-06 Juan Martinez <juan@memset.com>
 
  * release 0.15:
