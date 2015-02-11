@@ -1,3 +1,9 @@
+2015-01-16 Juan Martinez <juan@memset.com>
+
+ * release 0.17:
+
+  - Exposed SSH "keepalive" support with a new configuration token.
+
 2015-01-15 Juan Martinez <juan@memset.com>
 
  * release 0.16:
