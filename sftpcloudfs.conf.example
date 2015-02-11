@@ -37,6 +37,9 @@
 # Negotiation time limit in seconds, 0 to disable.
 # negotiation-timeout = 0
 
+# Keep alive packets interval in seconds, 0 to disable.
+# keepalive = 0
+
 # Large file support.
 # Specify a size in MB to split large files.
 # split-large-files = (empty)

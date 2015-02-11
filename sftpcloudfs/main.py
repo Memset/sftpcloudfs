@@ -114,6 +114,7 @@ class Main(object):
                                   'max-children': "20",
                                   'auth-timeout': "60",
                                   'negotiation-timeout': "0",
+                                  'keepalive': "0",
                                   'log-file': None,
                                   'syslog': 'no',
                                   'verbose': 'no',
@@ -305,6 +306,14 @@ class Main(object):
             parser.error('negotiation-timeout: invalid value')
 
         try:
+            options.keepalive = int(config.get('sftpcloudfs', 'keepalive'))
+        except ValueError:
+            parser.error('keepalive: invalid value, integer expected')
+
+        if options.keepalive < 0:
+            parser.error('keepalive: invalid value')
+
+        try:
             options.split_size = int(config.get('sftpcloudfs', 'split-large-files'))*10**6
         except ValueError:
             parser.error('split-large-files: invalid size, integer expected')
@@ -361,6 +370,7 @@ class Main(object):
                                           hide_part_dir=self.options.hide_part_dir,
                                           auth_timeout=self.options.auth_timeout,
                                           negotiation_timeout=self.options.negotiation_timeout,
+                                          keepalive=self.options.keepalive,
                                           insecure=self.options.insecure,
                                           )
 

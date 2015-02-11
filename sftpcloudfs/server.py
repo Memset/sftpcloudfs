@@ -227,6 +227,7 @@ class ObjectStorageSFTPRequestHandler(StreamRequestHandler):
     # these are set by the server
     auth_timeout = None
     negotiation_timeout = 0
+    keepalive = 0
 
     def handle(self):
         Random.atfork()
@@ -236,6 +237,9 @@ class ObjectStorageSFTPRequestHandler(StreamRequestHandler):
         self.server.client_address = self.client_address
         t = paramiko.Transport(self.request)
         t.add_server_key(self.server.host_key)
+        if self.keepalive:
+            self.log.debug("%s: setting keepalive to %d" % (self.__class__.__name__, self.keepalive))
+            t.set_keepalive(self.keepalive)
         t.set_subsystem_handler("sftp", paramiko.SFTPServer, SFTPServerInterface, self.server.fs)
 
         # asynchronous negotiation with optional time limit; paramiko has a banner timeout already (15 secs)
@@ -277,7 +281,7 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
 
     def __init__(self, address, host_key=None, authurl=None, max_children=20, keystone=None,
             no_scp=False, split_size=0, hide_part_dir=False, auth_timeout=None,
-            negotiation_timeout=0, insecure=False):
+            negotiation_timeout=0, keepalive=0, insecure=False):
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start server" % self.__class__.__name__)
         self.fs = ObjectStorageFS(None, None, authurl=authurl, keystone=keystone, hide_part_dir=hide_part_dir, insecure=insecure) # unauthorized
@@ -286,6 +290,7 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
         self.no_scp = no_scp
         ObjectStorageSFTPRequestHandler.auth_timeout = auth_timeout
         ObjectStorageSFTPRequestHandler.negotiation_timeout = negotiation_timeout
+        ObjectStorageSFTPRequestHandler.keepalive = keepalive
         ForkingTCPServer.__init__(self, address, ObjectStorageSFTPRequestHandler)
         ObjectStorageFD.split_size = split_size
 
