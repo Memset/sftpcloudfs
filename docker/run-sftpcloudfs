@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -e
+
+if [ ! -f /config/id_rsa ]; then
+	cat <<RSA_WARNING
+******************************************************************
+No id_rsa file found in /config ; please mount the volume and add
+one if you want to use an existing key!
+******************************************************************
+Generating a new RSA key for the server...
+RSA_WARNING
+	ssh-keygen -t rsa -b 4096 -C "server@sftpcloudfs" -f /config/id_rsa -N ""
+	echo "DONE"
+else
+	echo "*** Using existing id_rsa file: `ssh-keygen -lf /config/id_rsa`"
+fi
+
+echo "Starting memcache..."
+service memcached start
+
+echo "Starting sftpcloudfs..."
+exec sftpcloudfs --host-key-file /config/id_rsa \
+ -f \
+ --config /config/sftpcloudfs.conf \
+ --uid `id -u sftpcloudfs` \
+ --gid `id -g sftpcloudfs` \
+ --bind 0.0.0.0 \
+ --auth-url $AUTH --port $PORT
+
