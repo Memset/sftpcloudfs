@@ -1,10 +1,10 @@
 First pull the image with:
 
-  docker pull jjmartinez/sftpcloudfs
+    docker pull jjmartinez/sftpcloudfs
 
 You can run the SFTP server with:
 
-  docker run --env AUTH=YOURAUTH -d --name sftp -p 8022:8022 jjmartinez/sftpcloudfs
+    docker run --env AUTH=YOURAUTH -d --name sftp -p 8022:8022 jjmartinez/sftpcloudfs
 
 Replace `YOURAUTH` with the public authentication service of your Swift provider (eg. https://auth.storage.memset.com/v1.0).
 
@@ -22,5 +22,5 @@ Building the container
 
 Just run:
 
-  docker build .
+    docker build .
 
