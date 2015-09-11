@@ -228,6 +228,7 @@ class ObjectStorageSFTPRequestHandler(StreamRequestHandler):
     auth_timeout = None
     negotiation_timeout = 0
     keepalive = 0
+    secopts = {}
 
     def handle(self):
         Random.atfork()
@@ -236,6 +237,15 @@ class ObjectStorageSFTPRequestHandler(StreamRequestHandler):
         self.log.debug("%s: start transport" % self.__class__.__name__)
         self.server.client_address = self.client_address
         t = paramiko.Transport(self.request)
+        if self.secopts:
+            secopt = t.get_security_options()
+            for op, val in self.secopts.items():
+                try:
+                    setattr(secopt, op, val)
+                except ValueError as ex:
+                    self.log.error("Failed to setup %s (%r): %s" % (op, val, ex))
+                else:
+                    self.log.debug("%s set to %r" % (op, val))
         t.add_server_key(self.server.host_key)
         if self.keepalive:
             self.log.debug("%s: setting keepalive to %d" % (self.__class__.__name__, self.keepalive))
@@ -281,7 +291,7 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
 
     def __init__(self, address, host_key=None, authurl=None, max_children=20, keystone=None,
             no_scp=False, split_size=0, hide_part_dir=False, auth_timeout=None,
-            negotiation_timeout=0, keepalive=0, insecure=False):
+            negotiation_timeout=0, keepalive=0, insecure=False, secopts=None):
         self.log = paramiko.util.get_logger("paramiko")
         self.log.debug("%s: start server" % self.__class__.__name__)
         self.fs = ObjectStorageFS(None, None, authurl=authurl, keystone=keystone, hide_part_dir=hide_part_dir, insecure=insecure) # unauthorized
@@ -291,6 +301,7 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
         ObjectStorageSFTPRequestHandler.auth_timeout = auth_timeout
         ObjectStorageSFTPRequestHandler.negotiation_timeout = negotiation_timeout
         ObjectStorageSFTPRequestHandler.keepalive = keepalive
+        ObjectStorageSFTPRequestHandler.secopts = secopts
         ForkingTCPServer.__init__(self, address, ObjectStorageSFTPRequestHandler)
         ObjectStorageFD.split_size = split_size
 

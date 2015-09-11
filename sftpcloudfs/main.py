@@ -115,6 +115,8 @@ class Main(object):
                                   'auth-timeout': "60",
                                   'negotiation-timeout': "0",
                                   'keepalive': "0",
+                                  'ciphers': None,
+                                  'digests': None,
                                   'log-file': None,
                                   'syslog': 'no',
                                   'verbose': 'no',
@@ -313,6 +315,15 @@ class Main(object):
         if options.keepalive < 0:
             parser.error('keepalive: invalid value')
 
+        options.secopts = {}
+        ciphers = config.get('sftpcloudfs', 'ciphers')
+        if ciphers:
+            options.secopts["ciphers"] = [x.strip() for x in ciphers.split(',')]
+
+        digests = config.get('sftpcloudfs', 'digests')
+        if digests:
+            options.secopts["digests"] = [x.strip() for x in digests.split(',')]
+
         try:
             options.split_size = int(config.get('sftpcloudfs', 'split-large-files'))*10**6
         except ValueError:
@@ -372,6 +383,7 @@ class Main(object):
                                           negotiation_timeout=self.options.negotiation_timeout,
                                           keepalive=self.options.keepalive,
                                           insecure=self.options.insecure,
+                                          secopts=self.options.secopts,
                                           )
 
         dc = daemon.DaemonContext()
