@@ -1,3 +1,13 @@
+2015-09-11 Juan Martinez <juan@memset.com>
+
+ * release 0.18:
+
+  - Configuration support to set SSH ciphers and digests.
+  See sftpcloudfs.conf.example for further details.
+
+  Thanks to Oliver Bristow for the suggested patch.
+
+
 2015-01-16 Juan Martinez <juan@memset.com>
 
  * release 0.17:
