@@ -25,7 +25,7 @@ Requirements:
 - paramiko (1.7.6+; 1.10.1 recommended)
 - python-swiftclient (2.0+)
 - python-daemon (1.5.5)
-- ftp-cloudfs (0.30+)
+- ftp-cloudfs (0.35+)
 - python-memcached (1.45)
 
 These are the minimum recommended versions based in our testing
