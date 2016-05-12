@@ -5,7 +5,7 @@ LABEL version="1.0"
 LABEL description="This image runs a sftpcloudfs SFTP proxy to OpenStack Object Storage (swift)."
 
 RUN apt-get update && apt-get install -y memcached
-RUN pip install paramiko==1.17.0 ftp-cloudfs python-keystoneclient
+RUN pip install paramiko==1.17.0 sftp-cloudfs python-keystoneclient
 RUN useradd -M -d /nonexistent -s /bin/false sftpcloudfs
 
 ADD sftpcloudfs.conf /config/
