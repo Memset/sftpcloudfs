@@ -45,7 +45,7 @@
 # ciphers = (empty)
 
 # Comma-separated list of digests supported by paramilo,
-# otherwise defaults are used (eg hmac-sha1)
+# otherwise defaults are used (eg hmac-sha2-256, hmac-sha1)
 # digests = (empty)
 
 # Large file support.
