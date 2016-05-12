@@ -22,7 +22,7 @@ Install
 Requirements:
 
 - python (2.6)
-- paramiko (1.7.6+; 1.10.1 recommended)
+- paramiko (1.7.6+; 1.17.0+ recommended)
 - python-swiftclient (2.0+)
 - python-daemon (1.5.5)
 - ftp-cloudfs (0.35+)
