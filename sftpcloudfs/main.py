@@ -29,7 +29,7 @@ import signal
 import sys
 import logging
 from logging.handlers import SysLogHandler
-from ConfigParser import RawConfigParser
+from ConfigParser import RawConfigParser, ParsingError
 from optparse import OptionParser
 import daemon
 from Crypto import Random
@@ -134,9 +134,12 @@ class Main(object):
                                   'keystone-endpoint-type': default_ks_endpoint_type,
                                   })
 
-        if not config.read(config_file) and alt_config_file:
-            # the default conf file is optional
-            parser.error("failed to read %s" % config_file)
+        try:
+            if not config.read(config_file) and alt_config_file:
+                # the default conf file is optional
+                parser.error("failed to read %s" % config_file)
+        except ParsingError as ex:
+             parser.error("failed to read %s: %s" % (config_file, ex.message))
 
         if not config.has_section('sftpcloudfs'):
             config.add_section('sftpcloudfs')
