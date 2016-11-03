@@ -61,6 +61,9 @@ that supports following options:
     -b BIND_ADDRESS, --bind-address=BIND_ADDRESS
                           Address to bind (default: 127.0.0.1)
     -p PORT, --port=PORT  Port to bind (default: 8022)
+    --server-ident=SERVER_IDENT
+                          Server ident to use when sending the SSH banner to the
+                          client (default: sftpcloudfs_VER)
     --memcache=MEMCACHE   Memcache server(s) to be used for cache (ip:port)
     -l LOG_FILE, --log-file=LOG_FILE
                           Log into provided file

@@ -21,6 +21,9 @@
 # Port to bind.
 # port = 8022
 
+# Server ident to use when sending the SSH banner to the client.
+# server-ident = sftpcloudfs_VER
+
 # SCP support.
 # scp-support = yes
 
