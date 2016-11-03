@@ -274,7 +274,7 @@ class SCPHandler(threading.Thread):
 
             for subpath, subpath_stat in self.fs.listdir_with_stat(path):
                 subpath = path + "/" + subpath
-                self.send_inner(subpath, subpath_stat)
+                self.send(subpath, subpath_stat)
 
             self.channel.send("E\n")
             self.wait_for_ack()
