@@ -328,8 +328,7 @@ class SftpcloudfsTest(unittest.TestCase):
         directory = u"/Smiley\u263aContainer"
         self.sftp.mkdir(directory)
         self.sftp.chdir(directory)
-        # FIXME shouldn't have to utf-8 decode here?
-        self.assertEqual(self.sftp.getcwd().decode("utf-8"), directory)
+        self.assertEqual(self.sftp.getcwd(), directory)
         self.sftp.chdir("..")
         self.sftp.rmdir(directory)
 

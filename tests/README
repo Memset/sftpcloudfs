@@ -6,6 +6,8 @@ Set these environment variables before running the tests
   export OS_API_KEY='key'
   export OS_AUTH_URL='https://url.of.auth.server/v1.0'
 
+Tests require a recent version of paramiko, 2.0.x is recommended.
+
 Those tests were based on python-ftp-cloudfs tests, MIT licensed.
 
 Please check the original project at:
