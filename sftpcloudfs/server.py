@@ -254,7 +254,10 @@ class ObjectStorageSFTPRequestHandler(StreamRequestHandler):
         t.set_subsystem_handler("sftp", paramiko.SFTPServer, SFTPServerInterface, self.server.fs)
 
         if self.server_ident:
-            t.local_version = 'SSH-' + t._PROTO_ID + '-' + self.server_ident
+            # expected format SSH-0.0-string; eg. SSH-2.0-paramiko_1.18
+            local_version = t.local_version.split("-")[:2]
+            local_version.append(self.server_ident)
+            t.local_version = '-'.join(local_version)
 
         # asynchronous negotiation with optional time limit; paramiko has a banner timeout already (15 secs)
         start = time()
