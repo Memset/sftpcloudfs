@@ -1,3 +1,12 @@
+2016-11-03 Juan Martinez <juan@memset.com>
+
+ * release 0.19:
+
+  - Fix in recursive SCP
+  - New functionally to allow setting the server ident
+
+Thanks to mnederlof for both patches.
+
 2016-05-12 Juan Martinez <juan@memset.com>
 
  * release 0.18.1:
