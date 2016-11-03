@@ -5,7 +5,7 @@
   - Fix in recursive SCP
   - New functionally to allow setting the server ident
 
-Thanks to mnederlof for both patches.
+Thanks to Michel Nederlof for both patches.
 
 2016-05-12 Juan Martinez <juan@memset.com>
 
