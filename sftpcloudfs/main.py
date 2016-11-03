@@ -110,6 +110,7 @@ class Main(object):
                                   'host-key-file': None,
                                   'bind-address': "127.0.0.1",
                                   'port': 8022,
+                                  'server_ident': 'sftpcloudfs',
                                   'memcache': None,
                                   'max-children': "20",
                                   'auth-timeout': "60",
@@ -170,6 +171,11 @@ class Main(object):
                           type="int",
                           default=config.get('sftpcloudfs', 'port'),
                           help="Port to bind (default: 8022)")
+
+        parser.add_option("--server-ident", dest="server_ident",
+                          type="str",
+                          default=config.get('sftpcloudfs', 'server_ident'),
+                          help="Server ident to use when sending SSH banner to client")
 
         memcache = config.get('sftpcloudfs', 'memcache')
         if memcache:
@@ -387,6 +393,7 @@ class Main(object):
                                           keepalive=self.options.keepalive,
                                           insecure=self.options.insecure,
                                           secopts=self.options.secopts,
+                                          server_ident=self.options.server_ident,
                                           )
 
         dc = daemon.DaemonContext()
