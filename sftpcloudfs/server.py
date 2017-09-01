@@ -328,7 +328,7 @@ class ObjectStorageSFTPServer(ForkingTCPServer, paramiko.ServerInterface):
 
         # Parse the command
         if ' -- ' in command:
-            # scp will use -- to delimit the begining of the unscaped filename
+            # scp will use -- to delimit the beginning of the unscaped filename
             # so translate it to something that shelex can manage
             command = command.replace(' -- ', ' "') + '"'
         command = shlex.split(command)
