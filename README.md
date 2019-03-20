@@ -74,18 +74,23 @@ that supports following options:
     --pid-file=PID_FILE   Full path to the pid file location
     --uid=UID             UID to drop the privileges to when in daemon mode
     --gid=GID             GID to drop the privileges to when in daemon mode
-    --keystone-auth       Use auth 2.0 (Keystone, requires keystoneclient)
+    --keystone-auth       Use OpenStack Identity Service (Keystone, requires keystoneclient)
+    --keystone-auth-version=VERSION
+                          Identity API version to be used, default: 2.0
     --keystone-region-name=REGION_NAME
-                          Region name to be used in auth 2.0
+                          Region name to be used in Keystone auth
     --keystone-tenant-separator=TENANT_SEPARATOR
                           Character used to separate tenant_name/username in
-                          auth 2.0, default: TENANT.USERNAME
+                          Keystone auth, default: TENANT.USERNAME
+    --keystone-domain-separator=DOMAIN_SEPARATOR
+                          Character used to separate project_name/project_domain_name
+                          and username/user_domain_name in Keystone auth v3, default: @
     --keystone-service-type=SERVICE_TYPE
-                          Service type to be used in auth 2.0, default: object-
-                          store
+                          Service type to be used in Keystone auth,
+                          default: object-store
     --keystone-endpoint-type=ENDPOINT_TYPE
-                          Endpoint type to be used in auth 2.0, default:
-                          publicURL
+                          Endpoint type to be used in Keystone auth,
+                          default: publicURL
     --config=CONFIG       Use an alternative configuration file
 
 The default location for the configuration file is /etc/sftpcloudfs.conf.
@@ -96,9 +101,9 @@ server must be secured to prevent unauthorized access to the cached data.
 By default Swift auth 1.0 will be used, and is compatible with OpenStack
 Object Storage (Swift) using swauth authentication middleware.
 
-Optionally OpenStack Identity Service 2.0 (*aka* keystone) can be used. Currently
-python-keystoneclient (0.3.2+) is required to use auth 2.0 and it can be enabled
-with *--keystone-auth* option. 
+Optionally OpenStack Identity Service (*aka* keystone) v2.0 or v3 can be used.
+Currently python-keystoneclient (0.3.2+ recommended) is required to use Keystone auth
+and it can be enabled with ``keystone-auth`` option.
 
 The server supports large files (over the 5GB default) by splitting the files
 in parts into a *.part* subdirectory and using a manifest file to access them as
