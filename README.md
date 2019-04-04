@@ -72,8 +72,8 @@ that supports following options:
     --syslog              Enable logging to system logger (daemon facility)
     -v, --verbose         Show detailed information on logging
     --pid-file=PID_FILE   Full path to the pid file location
-    --uid=UID             UID to drop the privileges to when in daemon mode
-    --gid=GID             GID to drop the privileges to when in daemon mode
+    --uid=UID/USER        UID or USER to drop the privileges to when in daemon mode
+    --gid=GID/GROUP       GID or GROUP to drop the privileges to when in daemon mode
     --keystone-auth       Use OpenStack Identity Service (Keystone, requires keystoneclient)
     --keystone-auth-version=VERSION
                           Identity API version to be used, default: 2.0

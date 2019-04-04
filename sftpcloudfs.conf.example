@@ -70,10 +70,10 @@
 # Full path to the pid file location.
 # pid-file = (empty)
 
-# UID to drop privileges when in daemon mode.
+# UID or USER to drop privileges to when in daemon mode.
 # uid = (empty)
 
-# GID to drop privileges when in daemon mode.
+# GID or GROUP to drop privileges to when in daemon mode.
 # gid = (empty)
 
 # Use OpenStack Identity Service (Keystone), requires keystoneclient.
