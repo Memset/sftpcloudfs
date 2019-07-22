@@ -203,6 +203,7 @@ class SCPHandler(threading.Thread):
             bytes_sent = 0
             while bytes_sent < size:
                 chunk = self.recv(self.CHUNK_SIZE)
+                chunk = chunk[:(size-bytes_sent)]
                 fd.write(chunk)
                 bytes_sent += len(chunk)
 

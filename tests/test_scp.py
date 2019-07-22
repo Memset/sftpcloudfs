@@ -135,6 +135,34 @@ class SftpcloudfsTest(unittest.TestCase):
         headers, content = self.conn.get_object(self.container, 'foo')
         self.assertEquals(content, 'Hello\n')
 
+    def test_file_upload_padding(self):
+        filename = "bar"
+        content = "Hello\n"
+
+        self.channel.exec_command('scp -t /%s/%s' % (self.container, filename))
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        self.channel.sendall("C0644 6 %s\n" % filename)
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        # We intentionally add some trash content here to trigger the bug.
+        # Since content size is not equal to CHUNK_SIZE, chunk content will be
+        # padded with this during receive_inner().
+        self.channel.sendall(content + '\000')
+        ack = self.channel.recv(1)
+        self.assertEquals(ack, "\000")
+
+        exit_status = self.channel.recv_exit_status()
+        self.assertEquals(exit_status, 0)
+
+        tail = self.channel.recv(1)
+        self.assertEquals(tail, '')
+
+        headers, body = self.conn.get_object(self.container, filename)
+        self.assertEquals(body, content)
+
     def test_file_upload_to_dir(self):
         self.channel.exec_command('scp -td /%s' % self.container)
 
