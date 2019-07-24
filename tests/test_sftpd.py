@@ -7,6 +7,9 @@ from swiftclient import client
 import paramiko
 import stat
 
+from sftpcloudfs.constants import default_ks_tenant_separator as SEP, \
+    default_ks_service_type, default_ks_endpoint_type
+
 hostname = "127.0.0.1"
 port = 8022
 
@@ -17,16 +20,74 @@ class SftpcloudfsTest(unittest.TestCase):
     ''' FTP Cloud FS main test '''
 
     def setUp(self):
-        if not all(['OS_API_KEY' in os.environ,
-                    'OS_API_USER' in os.environ,
-                    'OS_AUTH_URL' in os.environ,
-                    ]):
-            print "env OS_API_USER/OS_API_KEY/OS_AUTH_URL not found."
-            sys.exit(1)
+        connection_parameters = {}
+        self.auth_version = os.environ.get('ST_AUTH_VERSION')
 
-        self.username = os.environ['OS_API_USER']
-        self.api_key = os.environ['OS_API_KEY']
-        self.auth_url = os.environ.get('OS_AUTH_URL')
+        if self.auth_version:
+            connection_parameters['os_options'] = {}
+            connection_parameters['os_options']['service_type'] = default_ks_service_type
+            connection_parameters['os_options']['endpoint_type'] = default_ks_endpoint_type
+
+            if not all(['OS_USERNAME' in os.environ,
+                        'OS_PASSWORD' in os.environ,
+                        'OS_AUTH_URL' in os.environ,
+                        ]):
+                print "env OS_USERNAME/OS_PASSWORD/OS_AUTH_URL not found."
+                sys.exit(1)
+
+            self.username = os.environ['OS_USERNAME']
+            self.password = os.environ['OS_PASSWORD']
+            self.auth_url = os.environ['OS_AUTH_URL']
+
+            region_name = os.environ.get('OS_REGION_NAME')
+            if region_name:
+                connection_parameters['os_options']['region_name'] = region_name
+
+            if self.auth_version == "2.0":
+                connection_parameters['auth_version'] = "2.0"
+                self.tenant_name = os.environ.get('OS_TENANT_NAME')
+                if not self.tenant_name:
+                    print "env OS_TENANT_NAME not found."
+                    sys.exit(1)
+                connection_parameters['tenant_name'] = self.tenant_name
+            elif self.auth_version == "3":
+                connection_parameters['auth_version'] = "3"
+                project_name = os.environ.get('OS_PROJECT_NAME')
+                if not project_name:
+                    print "env OS_PROJECT_NAME not found."
+                    sys.exit(1)
+                connection_parameters['os_options']['project_name'] = project_name
+                self.tenant_name = project_name
+                if 'OS_USER_DOMAIN_NAME' in os.environ:
+                    connection_parameters['os_options']['user_domain_name'] = os.environ['OS_USER_DOMAIN_NAME']
+                if 'OS_PROJECT_DOMAIN_NAME' in os.environ:
+                    connection_parameters['os_options']['project_domain_name'] = os.environ['OS_PROJECT_DOMAIN_NAME']
+            else:
+                print "env ST_AUTH_VERSION is not set properly"
+                sys.exit(1)
+
+            connection_parameters['user'] = self.username
+            connection_parameters['key'] = self.password
+            connection_parameters['authurl'] = self.auth_url
+
+            self.api_key = SEP.join([self.tenant_name, self.username, self.password])
+        else:
+            if not all(['OS_API_KEY' in os.environ,
+                        'OS_API_USER' in os.environ,
+                        'OS_AUTH_URL' in os.environ,
+                        ]):
+                print "env OS_API_USER/OS_API_KEY/OS_AUTH_URL not found."
+                sys.exit(1)
+
+            self.username = os.environ['OS_API_USER']
+            self.api_key = os.environ['OS_API_KEY']
+            self.auth_url = os.environ.get('OS_AUTH_URL')
+
+            connection_parameters = {
+                "user": self.username,
+                "key": self.api_key,
+                "authurl": self.auth_url,
+            }
 
         self.transport = paramiko.Transport((hostname, port))
         self.transport.connect(username=self.username, password=self.api_key) #, hostkey=hostkey)
@@ -34,7 +95,7 @@ class SftpcloudfsTest(unittest.TestCase):
         self.container = "sftpcloudfs_testing"
         self.sftp.mkdir("/%s" % self.container)
         self.sftp.chdir("/%s" % self.container)
-        self.conn = client.Connection(user=self.username, key=self.api_key, authurl=self.auth_url)
+        self.conn = client.Connection(**connection_parameters)
 
     def create_file(self, path, contents):
         '''Create path with contents'''

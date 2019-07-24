@@ -2,15 +2,35 @@ To run the tests you'll need access to an Openstack Swift server.
 
 Set these environment variables before running the tests
 
+Swift Auth v1.0 :
   export OS_API_USER='user'
   export OS_API_KEY='key'
   export OS_AUTH_URL='https://url.of.auth.server/v1.0'
 
+OpenStack Identity Service (Keystone) v2.0 :
+  export ST_AUTH_VERSION=2.0
+  export OS_USERNAME='user_name'
+  export OS_PASSWORD='password'
+  export OS_TENANT_NAME='tenant_name'
+  export OS_AUTH_URL='https://url.of.auth.server/'
+
+OpenStack Identity Service (Keystone) v3 :
+  export ST_AUTH_VERSION=3
+  export OS_USERNAME='user_name'
+  export OS_PASSWORD='password'
+  export OS_PROJECT_NAME='project_name'
+  export OS_AUTH_URL='https://url.of.auth.server/'
+
+And optionally :
+  export OS_USER_DOMAIN_NAME='user_domain_name'
+  export OS_PROJECT_DOMAIN_NAME='project_domain_name'
+  export OS_REGION_NAME='region_name'
+
 Tests require a recent version of paramiko, 2.0.x is recommended.
 
-Those tests were based on python-ftp-cloudfs tests, MIT licensed.
+Those tests were based on ftp-cloudfs tests, MIT licensed.
 
 Please check the original project at:
 
-https://github.com/chmouel/ftp-cloudfs
+http://github.com/cloudfs/ftp-cloudfs
 
