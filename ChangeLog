@@ -1,3 +1,11 @@
+2019-07-25 Juan Martinez <jjm@usebox.net>
+
+ * release 0.21:
+
+  - Add Swift storage policies support
+  - Allow providing user/group in uid/gid options
+  - Fix in SCP upload
+
 2019-07-12 Juan Martinez <jjm@usebox.net>
 
  * release 0.20:
