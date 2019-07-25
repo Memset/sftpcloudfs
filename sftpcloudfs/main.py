@@ -25,6 +25,7 @@ THE SOFTWARE.
 """
 
 import os
+import pwd
 import signal
 import sys
 import logging
@@ -222,13 +223,11 @@ class Main(object):
                           help="Full path to the pid file location")
 
         parser.add_option('--uid',
-                          type="int",
                           dest="uid",
                           default=config.get('sftpcloudfs', 'uid'),
                           help="UID to drop the privileges to when in daemon mode")
 
         parser.add_option('--gid',
-                          type="int",
                           dest="gid",
                           default=config.get('sftpcloudfs', 'gid'),
                           help="GID to drop the privileges to when in daemon mode")
@@ -359,6 +358,18 @@ class Main(object):
         if options.keystone:
             keystone_keys = ('auth_version', 'region_name', 'tenant_separator', 'domain_separator', 'service_type', 'endpoint_type')
             options.keystone = dict((key, getattr(options, key)) for key in keystone_keys)
+
+        if options.uid and isinstance(options.uid, basestring):
+            try:
+                options.uid = pwd.getpwnam(options.uid).pw_uid
+            except KeyError:
+                parser.error("uid: Failed to get %s's uid" % options.uid)
+
+        if options.gid and isinstance(options.gid, basestring):
+            try:
+                options.gid = pwd.getpwnam(options.gid).pw_gid
+            except KeyError:
+                parser.error("gid: Failed to get %s's gid" % options.gid)
 
         self.options = options
 
