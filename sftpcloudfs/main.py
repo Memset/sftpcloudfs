@@ -136,6 +136,7 @@ class Main(object):
                                   'keystone-domain-separator': '@',
                                   'keystone-service-type': default_ks_service_type,
                                   'keystone-endpoint-type': default_ks_endpoint_type,
+                                  'storage-policy': None,
                                   })
 
         try:
@@ -282,6 +283,12 @@ class Main(object):
                           default=config_file,
                           help="Use an alternative configuration file")
 
+        parser.add_option("--storage-policy",
+                          type="str",
+                          dest="storage_policy",
+                          default=config.get('sftpcloudfs', 'storage-policy'),
+                          help="Swift storage policy to be used")
+
         (options, args) = parser.parse_args()
 
         # required parameters
@@ -427,6 +434,7 @@ class Main(object):
                                           insecure=self.options.insecure,
                                           secopts=self.options.secopts,
                                           server_ident=self.options.server_ident,
+                                          storage_policy=self.options.storage_policy,
                                           )
 
         dc = daemon.DaemonContext()
