@@ -359,17 +359,23 @@ class Main(object):
             keystone_keys = ('auth_version', 'region_name', 'tenant_separator', 'domain_separator', 'service_type', 'endpoint_type')
             options.keystone = dict((key, getattr(options, key)) for key in keystone_keys)
 
-        if options.uid and isinstance(options.uid, basestring):
+        if options.uid:
             try:
-                options.uid = pwd.getpwnam(options.uid).pw_uid
-            except KeyError:
-                parser.error("uid: Failed to get %s's uid" % options.uid)
+                options.uid = int(options.uid)
+            except ValueError:
+                try:
+                    options.uid = pwd.getpwnam(options.uid).pw_uid
+                except KeyError:
+                    parser.error("uid: Invalid uid: %s" % options.uid)
 
-        if options.gid and isinstance(options.gid, basestring):
+        if options.gid:
             try:
-                options.gid = pwd.getpwnam(options.gid).pw_gid
-            except KeyError:
-                parser.error("gid: Failed to get %s's gid" % options.gid)
+                options.gid = int(options.gid)
+            except ValueError:
+                try:
+                    options.gid = pwd.getpwnam(options.gid).pw_gid
+                except KeyError:
+                    parser.error("gid: Invalid gid: %s" % options.gid)
 
         self.options = options
 
