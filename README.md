@@ -144,7 +144,7 @@ Authors
 -------
 
 - Nick Craig-Wood <nick@memset.com>
-- Juan J. Martinez <juan@memset.com>
+- Juan J. Martinez <jjm@usebox.net>
 
 Contributors
 ------------
